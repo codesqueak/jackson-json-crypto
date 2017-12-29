@@ -50,6 +50,17 @@ This ...
     private String critical;
 ```
 
+## Java Cryptography Extension (JCE) Unlimited Strength
+
+As shipped, Java has limitations on the strength of encryption allowable.  To allow full strength encryption to be used, you will need to
+enable the Unlimited Strength Jurisdiction Policy.
+
+[Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
+
+Problems with encyption strength will usually show as an error in the following form.
+```
+com.codingrodent.jackson.crypto.EncryptionException: java.security.InvalidKeyException: Illegal key size or default parameters
+```
 
 ## Using Jenkins
 
