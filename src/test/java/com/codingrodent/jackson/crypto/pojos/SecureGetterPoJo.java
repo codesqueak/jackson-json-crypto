@@ -3,7 +3,7 @@ package com.codingrodent.jackson.crypto.pojos;
 import com.codingrodent.jackson.crypto.Encrypt;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SecurePoJo {
+public class SecureGetterPoJo {
 
     private String critical;
 

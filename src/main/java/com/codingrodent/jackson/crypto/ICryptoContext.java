@@ -28,17 +28,17 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Optional;
 
 public interface ICryptoContext {
-    void setIv(byte[] var1);
-
-    void setSalt(Optional<byte[]> var1);
-
     SecretKeySpec getSecretKeySpec();
 
     void setSecretKeySpec(SecretKeySpec var1);
 
     byte[] getIv();
 
+    void setIv(byte[] var1);
+
     Optional<byte[]> getSalt();
+
+    void setSalt(Optional<byte[]> var1);
 
     String getCipherName();
 }

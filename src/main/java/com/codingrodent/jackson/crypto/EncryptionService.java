@@ -39,11 +39,24 @@ public class EncryptionService {
     private final DefaultCryptoContext cryptoContext;
 
     /**
+     * Private  constructor for singleton
+     *
+     * @param mapper    Object mapper to use
+     * @param validator Validator to use
+     * @throws EncryptionException Thrown on any error
+     */
+    private EncryptionService(final ObjectMapper mapper, final Validator validator) throws EncryptionException {
+        this.mapper = mapper;
+        this.validator = validator;
+        this.cryptoContext = new DefaultCryptoContext();
+    }
+
+    /**
      * Lazy initializer for the encryption service
      *
      * @param mapper    Object mapper to use
      * @param validator Validator to use
-     * @return An instance of teh encryption service
+     * @return An instance of the encryption service
      * @throws EncryptionException Thrown on any error
      */
     public static EncryptionService getInstance(final ObjectMapper mapper, final Validator validator) throws EncryptionException {
@@ -58,6 +71,17 @@ public class EncryptionService {
     }
 
     /**
+     * Lazy initializer for the encryption service using a default validator
+     *
+     * @param mapper Object mapper to use
+     * @return An instance of the encryption service
+     * @throws EncryptionException Thrown on any error
+     */
+    public static EncryptionService getInstance(final ObjectMapper mapper) throws EncryptionException {
+        return getInstance(mapper, Validation.buildDefaultValidatorFactory().getValidator());
+    }
+
+    /**
      * Get the encryption service.  Needs to have been initialized by this point
      *
      * @return Encryption service
@@ -69,19 +93,6 @@ public class EncryptionService {
         } else {
             return encryptionService;
         }
-    }
-
-    /**
-     * Private  constructor for singleton
-     *
-     * @param mapper    Object mapper to use
-     * @param validator Validator to use
-     * @throws EncryptionException Thrown on any error
-     */
-    private EncryptionService(final ObjectMapper mapper, final Validator validator) throws EncryptionException {
-        this.mapper = mapper;
-        this.validator = validator;
-        this.cryptoContext = new DefaultCryptoContext();
     }
 
     private void validate(EncryptedJson encrypted) throws EncryptionException {
