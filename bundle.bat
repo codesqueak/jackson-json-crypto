@@ -1,1 +1,1 @@
-jar -cvf bundle.jar Z80Processor-2.0.2.pom Z80Processor-2.0.2.pom.asc Z80Processor-2.0.2.jar Z80Processor-2.0.2.jar.asc Z80Processor-2.0.2-javadoc.jar Z80Processor-2.0.2-javadoc.jar.asc Z80Processor-2.0.2-sources.jar Z80Processor-2.0.2-sources.jar.asc
+jar -cvf bundle.jar jackson-json-crypto-0.1.0.pom jackson-json-crypto-0.1.0.pom.asc jackson-json-crypto-0.1.0.jar jackson-json-crypto-0.1.0.jar.asc jackson-json-crypto-0.1.0-javadoc.jar jackson-json-crypto-0.1.0-javadoc.jar.asc jackson-json-crypto-0.1.0-sources.jar jackson-json-crypto-0.1.0-sources.jar.asc

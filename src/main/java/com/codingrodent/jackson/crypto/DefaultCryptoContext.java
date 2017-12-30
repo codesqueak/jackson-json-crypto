@@ -80,12 +80,12 @@ public class DefaultCryptoContext extends BaseCryptoContext {
         return CIPHER_NAME;
     }
 
-    public void setPassword(final Optional<String> password) {
-        this.password = password;
-    }
-
     public Optional<String> getPassword() {
         return this.password;
+    }
+
+    public void setPassword(final Optional<String> password) {
+        this.password = password;
     }
 }
 

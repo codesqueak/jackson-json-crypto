@@ -88,14 +88,6 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         }
     }
 
-    public void setIv(final byte[] iv) {
-        this.iv = Arrays.copyOf(iv, iv.length);
-    }
-
-    public void setSalt(final Optional<byte[]> salt) {
-        this.salt = salt;
-    }
-
     public SecretKeySpec getSecretKeySpec() {
         return secretKeySpec;
     }
@@ -108,7 +100,15 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         return Arrays.copyOf(iv, iv.length);
     }
 
+    public void setIv(final byte[] iv) {
+        this.iv = Arrays.copyOf(iv, iv.length);
+    }
+
     public Optional<byte[]> getSalt() {
         return salt;
+    }
+
+    public void setSalt(final Optional<byte[]> salt) {
+        this.salt = salt;
     }
 }
