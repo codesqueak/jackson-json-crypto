@@ -61,7 +61,7 @@ task createPom {
                 groupId 'com.codingrodent.jackson.crypto'
                 name 'com.codingrodent.jackson.crypto'
                 description 'A Crypto Module for Jackson'
-                url 'https://github.com/codesqueak/Jackson-Crypto-Module'
+                url 'https://github.com/codesqueak/jackson-json-crypto'
                 scm {
                     url 'https://github.com/codesqueak/jackson-json-crypto'
                     connection 'scm:git:git://github.com/codesqueak/jackson-json-crypto.git'
