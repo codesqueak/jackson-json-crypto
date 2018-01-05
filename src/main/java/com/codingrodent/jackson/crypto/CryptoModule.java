@@ -31,9 +31,9 @@ import com.fasterxml.jackson.databind.*;
  * Crypto Module for Jackson JSON library - Should be auto imported if found on classpath
  */
 public class CryptoModule extends Module {
-    private final int MAJOR = 0;
-    private final int MINOR = 2;
-    private final int PATCH = 0;
+    private final static int MAJOR = 0;
+    private final static int MINOR = 2;
+    private final static int PATCH = 0;
     private static final String GROUP_ID = "com.codingrodent.jackson.crypto";
     private static final String ARTIFACT_ID = "jackson-json-crypto";
     private final EncryptedSerializerModifier serializerModifierModifier;

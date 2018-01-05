@@ -24,30 +24,26 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.Cipher;
+import javax.crypto.*;
 import javax.crypto.spec.*;
+import java.security.SecureRandom;
 import java.util.*;
 
 import static javax.crypto.Cipher.*;
 
 public abstract class BaseCryptoContext implements ICryptoContext {
+    public static final String CIPHER_NAME = "AES/CBC/PKCS5Padding";
+    public static final String KEY_NAME = "PBKDF2WithHmacSHA512";
+
     private byte[] iv;
-    private Optional<byte[]> salt;
+    private byte[] salt;
     private SecretKeySpec secretKeySpec;
+    private String readPassword;
 
-    public String decrypt(final String source) throws EncryptionException {
+    @Override
+    public byte[] decrypt(final EncryptedJson value) throws EncryptionException {
         try {
-            byte[] cipherBytes = Base64.getDecoder().decode(source);
-            byte[] decryptedTextBytes = getDecryptCipher().doFinal(cipherBytes);
-            return new String(decryptedTextBytes, "UTF-8");
-        } catch (Exception e) {
-            throw new EncryptionException(e);
-        }
-    }
-
-    public byte[] decrypt(final byte[] source) throws EncryptionException {
-        try {
-            return getDecryptCipher().doFinal(source);
+            return getDecryptCipher(value.getIv(), value.getSalt()).doFinal(value.getValue());
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
@@ -70,45 +66,88 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         }
     }
 
-    private Cipher getDecryptCipher() throws EncryptionException {
-        return getCipher(DECRYPT_MODE);
-    }
-
-    private Cipher getEncryptCipher() throws EncryptionException {
-        return getCipher(ENCRYPT_MODE);
-    }
-
-    private Cipher getCipher(final int mode) throws EncryptionException {
+    private Cipher getDecryptCipher(final byte[] iv, final byte[] salt) throws EncryptionException {
         try {
             Cipher cipher = Cipher.getInstance(getCipherName());
-            cipher.init(mode, getSecretKeySpec(), new IvParameterSpec(getIv()));
+
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            SecretKeySpec secretKeySpec = getSecretKeySpec(salt, readPassword);
+
+            cipher.init(DECRYPT_MODE, secretKeySpec, ivParameterSpec);
             return cipher;
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    public SecretKeySpec getSecretKeySpec() {
-        return secretKeySpec;
+    private Cipher getEncryptCipher() throws EncryptionException {
+        try {
+            Cipher cipher = Cipher.getInstance(getCipherName());
+
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(getIv());
+
+            cipher.init(ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+            return cipher;
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
     }
 
+    byte[] generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        return bytes;
+    }
+
+    public SecretKeySpec getSecretKeySpec(final byte[] salt, final String password) throws EncryptionException {
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_NAME);
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65556, 256);
+            SecretKey secretKey = factory.generateSecret(spec);
+            return new SecretKeySpec(secretKey.getEncoded(), "AES");
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
+    }
+
+    @Override
     public void setSecretKeySpec(final SecretKeySpec secretKeySpec) {
         this.secretKeySpec = secretKeySpec;
     }
 
+    @Override
     public byte[] getIv() {
         return Arrays.copyOf(iv, iv.length);
     }
 
-    public void setIv(final byte[] iv) {
+    @Override
+    public void setIv(byte[] iv) {
         this.iv = Arrays.copyOf(iv, iv.length);
     }
 
-    public Optional<byte[]> getSalt() {
-        return salt;
+    @Override
+    public byte[] getSalt() {
+        return Arrays.copyOf(salt, salt.length);
     }
 
-    public void setSalt(final Optional<byte[]> salt) {
-        this.salt = salt;
+    @Override
+    public void setSalt(final byte[] salt) {
+        this.salt = Arrays.copyOf(salt, salt.length);
+    }
+
+    @Override
+    public void setReadPassword(String password) {
+        this.readPassword = password;
+    }
+
+    @Override
+    public String getKeyName() {
+        return KEY_NAME;
+    }
+
+    @Override
+    public String getCipherName() {
+        return CIPHER_NAME;
     }
 }

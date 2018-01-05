@@ -56,7 +56,7 @@ public class EncryptedJson {
     }
 
     public void setSalt(final byte[] salt) {
-        this.salt = Arrays.copyOf(salt, salt.length);
+        this.salt = salt != null ? Arrays.copyOf(salt, salt.length) : null;
     }
 
     public byte[] getIv() {

@@ -23,7 +23,7 @@
  */
 package com.codingrodent.jackson.crypto;
 
-import com.codingrodent.jackson.crypto.pojos.SecureGetterPoJo;
+import com.codingrodent.jackson.crypto.pojos.SecurePropertyPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.*;
 
@@ -31,7 +31,7 @@ import javax.validation.Validation;
 
 import static org.junit.Assert.assertEquals;
 
-public class CryptoGetterTest {
+public class CryptoPasswordTest {
     @Before
     public void setUp() throws Exception {
     }
@@ -41,16 +41,16 @@ public class CryptoGetterTest {
     }
 
     @Test
-    public void encryptDefault() throws Exception {
+    public void encryptPassword() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper, new PasswordCryptoContext("password1"));
+        EncryptionService.getInstance(objectMapper, new PasswordCryptoContext("Password1"));
 
-        SecureGetterPoJo pojo = new SecureGetterPoJo();
+        SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
 
         String json = objectMapper.writeValueAsString(pojo);
         System.out.println(json);
-        SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
+        SecurePropertyPoJo pojo2 = objectMapper.readValue(json, SecurePropertyPoJo.class);
         System.out.println(pojo2.getCritical());
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
@@ -58,16 +58,34 @@ public class CryptoGetterTest {
     @Test
     public void encryptCustomValidator() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("password1"));
+        EncryptionService.getInstance(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("Password1"));
 
-        SecureGetterPoJo pojo = new SecureGetterPoJo();
+        SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
 
         String json = objectMapper.writeValueAsString(pojo);
         System.out.println(json);
-        SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
+        SecurePropertyPoJo pojo2 = objectMapper.readValue(json, SecurePropertyPoJo.class);
         System.out.println(pojo2.getCritical());
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 
+    @Test
+    public void encryptPasswordReload() throws Exception {
+        ObjectMapper objectMapper1 = new ObjectMapper().registerModule(new CryptoModule());
+        ICryptoContext cryptoContext1 = new PasswordCryptoContext("Password1");
+        // Encrypt using first context
+        EncryptionService.getInstance(objectMapper1, cryptoContext1);
+        SecurePropertyPoJo pojo = new SecurePropertyPoJo();
+        pojo.setCritical("Something very secure ...");
+        String json = objectMapper1.writeValueAsString(pojo);
+        System.out.println(json);
+        //
+        // Recreate context
+        ObjectMapper objectMapper2 = new ObjectMapper().registerModule(new CryptoModule());
+        EncryptionService.getInstance(objectMapper2, cryptoContext1);
+        SecurePropertyPoJo pojo2 = objectMapper2.readValue(json, SecurePropertyPoJo.class);
+        System.out.println(pojo2.getCritical());
+        assertEquals(pojo.getCritical(), pojo2.getCritical());
+    }
 }

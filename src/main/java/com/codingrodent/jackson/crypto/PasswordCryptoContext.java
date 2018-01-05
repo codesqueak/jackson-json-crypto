@@ -24,30 +24,29 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Cipher;
+import javax.crypto.spec.*;
+import java.security.AlgorithmParameters;
 
-public interface ICryptoContext {
+import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-    void setSecretKeySpec(SecretKeySpec var1);
+public class PasswordCryptoContext extends BaseCryptoContext {
 
-    byte[] getIv();
-
-    void setIv(byte[] var1);
-
-    byte[] getSalt();
-
-    void setSalt(byte[] var1);
-
-    String getKeyName();
-
-    String getCipherName();
-
-    String encrypt(String source);
-
-    byte[] decrypt(EncryptedJson value);
-
-    byte[] encrypt(byte[] source);
-
-    void setReadPassword(String password);
+    public PasswordCryptoContext(final String password) throws EncryptionException {
+        try {
+            setReadPassword(password);
+            byte[] salt = generateSalt();
+            setSalt(salt);
+            SecretKeySpec secretKeySpec = getSecretKeySpec(salt, password);
+            setSecretKeySpec(secretKeySpec);
+            Cipher cipher = Cipher.getInstance(CIPHER_NAME);
+            cipher.init(ENCRYPT_MODE, secretKeySpec);
+            AlgorithmParameters params = cipher.getParameters();
+            setIv(params.getParameterSpec(IvParameterSpec.class).getIV());
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
+    }
 
 }
+

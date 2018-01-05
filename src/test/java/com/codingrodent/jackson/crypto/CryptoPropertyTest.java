@@ -43,7 +43,7 @@ public class CryptoPropertyTest {
     @Test
     public void encryptDefault() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper);
+        EncryptionService.getInstance(objectMapper, new PasswordCryptoContext("password1"));
 
         SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
@@ -58,7 +58,7 @@ public class CryptoPropertyTest {
     @Test
     public void encryptCustomValidator() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper, Validation.buildDefaultValidatorFactory().getValidator());
+        EncryptionService.getInstance(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("password1"));
 
         SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");

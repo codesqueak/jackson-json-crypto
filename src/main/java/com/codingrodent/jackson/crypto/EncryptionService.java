@@ -36,34 +36,36 @@ public class EncryptionService {
     private static volatile EncryptionService encryptionService;
     private final ObjectMapper mapper;
     private final Validator validator;
-    private final DefaultCryptoContext cryptoContext;
+    private final ICryptoContext cryptoContext;
 
     /**
      * Private  constructor for singleton
      *
-     * @param mapper    Object mapper to use
-     * @param validator Validator to use
+     * @param mapper        Object mapper to use
+     * @param validator     Validator to use
+     * @param cryptoContext Crypto to use
      * @throws EncryptionException Thrown on any error
      */
-    private EncryptionService(final ObjectMapper mapper, final Validator validator) throws EncryptionException {
+    private EncryptionService(final ObjectMapper mapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
         this.mapper = mapper;
         this.validator = validator;
-        this.cryptoContext = new DefaultCryptoContext();
+        this.cryptoContext = cryptoContext;
     }
 
     /**
      * Lazy initializer for the encryption service
      *
-     * @param mapper    Object mapper to use
-     * @param validator Validator to use
+     * @param mapper        Object mapper to use
+     * @param validator     Validator to use
+     * @param cryptoContext Crypto to use
      * @return An instance of the encryption service
      * @throws EncryptionException Thrown on any error
      */
-    public static EncryptionService getInstance(final ObjectMapper mapper, final Validator validator) throws EncryptionException {
+    public static EncryptionService getInstance(final ObjectMapper mapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
         if (null == encryptionService) {
             synchronized (EncryptionService.class) {
                 if (null == encryptionService) {
-                    encryptionService = new EncryptionService(mapper, validator);
+                    encryptionService = new EncryptionService(mapper, validator, cryptoContext);
                 }
             }
         }
@@ -73,12 +75,13 @@ public class EncryptionService {
     /**
      * Lazy initializer for the encryption service using a default validator
      *
-     * @param mapper Object mapper to use
+     * @param mapper        Object mapper to use
+     * @param cryptoContext Crypto to use
      * @return An instance of the encryption service
      * @throws EncryptionException Thrown on any error
      */
-    public static EncryptionService getInstance(final ObjectMapper mapper) throws EncryptionException {
-        return getInstance(mapper, Validation.buildDefaultValidatorFactory().getValidator());
+    public static EncryptionService getInstance(final ObjectMapper mapper, final ICryptoContext cryptoContext) throws EncryptionException {
+        return getInstance(mapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
     }
 
     /**
@@ -119,7 +122,6 @@ public class EncryptionService {
         for (final ConstraintViolation violation : violations) {
             sb.append("- ").append(violation.getPropertyPath().toString()).append(" ").append(violation.getMessage()).append("\n");
         }
-
         return sb.toString();
     }
 
@@ -133,7 +135,7 @@ public class EncryptionService {
     public EncryptedJson encrypt(final byte[] data) throws EncryptionException {
         EncryptedJson result = new EncryptedJson();
         result.setIv(cryptoContext.getIv());
-        result.setSalt(cryptoContext.getSalt().orElse(null));
+        result.setSalt(cryptoContext.getSalt());
         result.setValue(cryptoContext.encrypt(data));
         return result;
     }
@@ -162,7 +164,7 @@ public class EncryptionService {
      */
     public byte[] decrypt(EncryptedJson value) {
         validate(value);
-        return cryptoContext.decrypt(value.getValue());
+        return cryptoContext.decrypt(value);
     }
 
     /**
