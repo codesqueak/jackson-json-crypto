@@ -24,30 +24,39 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.spec.SecretKeySpec;
+/**
+ * Interface defining required core crypto functionality
+ */
+interface ICryptoContext {
 
-public interface ICryptoContext {
-
-    void setSecretKeySpec(SecretKeySpec var1);
-
-    byte[] getIv();
-
-    void setIv(byte[] var1);
-
-    byte[] getSalt();
-
-    void setSalt(byte[] var1);
-
-    String getKeyName();
-
-    String getCipherName();
-
-    String encrypt(String source);
-
+    /**
+     * Decrypt an encrypted JSON object. Contains salt and iv as fields
+     *
+     * @param value JSON data
+     * @return Decrypted byte array
+     */
     byte[] decrypt(EncryptedJson value);
 
+    /**
+     * Encrypted a string as a byte array and encode using base 64
+     *
+     * @param source Byte array to be encrypted
+     * @return Encrypted data
+     */
     byte[] encrypt(byte[] source);
 
-    void setReadPassword(String password);
+    /**
+     * Get the initialization vector
+     *
+     * @return Vector as byte array
+     */
+    byte[] getIv();
+
+    /**
+     * Get the salt
+     *
+     * @return Salt as byte array
+     */
+    byte[] getSalt();
 
 }

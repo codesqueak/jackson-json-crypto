@@ -24,29 +24,25 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.*;
-import java.security.AlgorithmParameters;
-
-import static javax.crypto.Cipher.ENCRYPT_MODE;
-
+/**
+ * Default crypto context for handling password based encryption processes
+ */
 public class PasswordCryptoContext extends BaseCryptoContext {
+    public static final String CIPHER_NAME = "AES/CBC/PKCS5Padding";
+    public static final String KEY_NAME = "PBKDF2WithHmacSHA512";
+    public static final int MIN_PASSWORD_LENGTH = 8;
 
-    public PasswordCryptoContext(final String password) throws EncryptionException {
-        try {
-            setReadPassword(password);
-            byte[] salt = generateSalt();
-            setSalt(salt);
-            SecretKeySpec secretKeySpec = getSecretKeySpec(salt, password);
-            setSecretKeySpec(secretKeySpec);
-            Cipher cipher = Cipher.getInstance(CIPHER_NAME);
-            cipher.init(ENCRYPT_MODE, secretKeySpec);
-            AlgorithmParameters params = cipher.getParameters();
-            setIv(params.getParameterSpec(IvParameterSpec.class).getIV());
-        } catch (Exception e) {
-            throw new EncryptionException(e);
-        }
+    public PasswordCryptoContext(final String readPassword, final String writePassword) throws EncryptionException {
+        super(readPassword, writePassword, CIPHER_NAME, KEY_NAME);
+        if ((null == readPassword) || (null == writePassword))
+            throw new IllegalArgumentException("Password cannot be null");
+
+        if ((readPassword.length() < MIN_PASSWORD_LENGTH) || (writePassword.length() < MIN_PASSWORD_LENGTH))
+            throw new IllegalArgumentException("Minimum password length " + MIN_PASSWORD_LENGTH + " characters");
     }
 
+    public PasswordCryptoContext(final String password) throws EncryptionException {
+        this(password, password);
+    }
 }
 

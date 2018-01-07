@@ -29,10 +29,28 @@ import com.fasterxml.jackson.databind.ser.*;
 
 import java.util.*;
 
+/**
+ * Implementation that defines API for objects that can be registered (for {@link BeanSerializerFactory}
+ * to participate in constructing {@link BeanSerializer} instances.
+ */
 public class EncryptedSerializerModifier extends BeanSerializerModifier {
-    public EncryptedSerializerModifier() {
+    private final EncryptionService encryptionService;
+
+    /**
+     * Constructor
+     *
+     * @param encryptionService Encryption services to use to handle {@link Encrypt} marked fields
+     */
+    public EncryptedSerializerModifier(final EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Add serialization functionality for {@link Encrypt} marked fields
+     */
+    @Override
     public List<BeanPropertyWriter> changeProperties(final SerializationConfig config, final BeanDescription beanDescription, final List<BeanPropertyWriter> beanProperties) {
         List<BeanPropertyWriter> newWriters = new ArrayList<>();
 
@@ -41,7 +59,7 @@ public class EncryptedSerializerModifier extends BeanSerializerModifier {
                 newWriters.add(writer);
             } else {
                 try {
-                    JsonSerializer<Object> encryptSer = new EncryptedJsonSerializer(EncryptionService.getInstance(), writer.getSerializer());
+                    JsonSerializer<Object> encryptSer = new EncryptedJsonSerializer(encryptionService, writer.getSerializer());
                     newWriters.add(new EncryptedPropertyWriter(writer, encryptSer));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -52,7 +70,7 @@ public class EncryptedSerializerModifier extends BeanSerializerModifier {
     }
 
     static class EncryptedPropertyWriter extends BeanPropertyWriter {
-        public EncryptedPropertyWriter(final BeanPropertyWriter base, final JsonSerializer<Object> deserializer) {
+        EncryptedPropertyWriter(final BeanPropertyWriter base, final JsonSerializer<Object> deserializer) {
             super(base);
             this._serializer = deserializer;
         }

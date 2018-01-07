@@ -28,23 +28,24 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Crypto Module for Jackson JSON library - Should be auto imported if found on classpath
+ * Crypto Module for Jackson JSON library
  */
 public class CryptoModule extends Module {
-    private final static int MAJOR = 0;
-    private final static int MINOR = 2;
+    private final static int MAJOR = 1;
+    private final static int MINOR = 0;
     private final static int PATCH = 0;
-    private static final String GROUP_ID = "com.codingrodent.jackson.crypto";
-    private static final String ARTIFACT_ID = "jackson-json-crypto";
+    private final static String GROUP_ID = "com.codingrodent.jackson.crypto";
+    private final static String ARTIFACT_ID = "jackson-json-crypto";
     private final EncryptedSerializerModifier serializerModifierModifier;
     private final EncryptedDeserializerModifier deserializerModifierModifier;
 
     /**
-     * Initialize
+     * Initialize module
+     * @param encryptionService Service to supply crypto functionality
      */
-    public CryptoModule() {
-        serializerModifierModifier = new EncryptedSerializerModifier();
-        deserializerModifierModifier = new EncryptedDeserializerModifier();
+    public CryptoModule(final EncryptionService encryptionService) {
+        serializerModifierModifier = new EncryptedSerializerModifier(encryptionService);
+        deserializerModifierModifier = new EncryptedDeserializerModifier(encryptionService);
     }
 
     /**
@@ -54,7 +55,7 @@ public class CryptoModule extends Module {
      */
     @Override
     public String getModuleName() {
-        return "JacksonCrypto";
+        return ARTIFACT_ID;
     }
 
     /**
@@ -74,8 +75,8 @@ public class CryptoModule extends Module {
      */
     @Override
     public void setupModule(final SetupContext context) {
-        context.addBeanSerializerModifier(this.serializerModifierModifier);
-        context.addBeanDeserializerModifier(this.deserializerModifierModifier);
+        context.addBeanSerializerModifier(serializerModifierModifier);
+        context.addBeanDeserializerModifier(deserializerModifierModifier);
     }
 }
 

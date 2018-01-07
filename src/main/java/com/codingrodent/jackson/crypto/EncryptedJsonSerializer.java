@@ -29,6 +29,9 @@ import com.fasterxml.jackson.databind.*;
 
 import java.io.*;
 
+/**
+ * Implementation of API used by {@link ObjectMapper}  for {@link JsonSerializer}s too) to serialize required objects
+ */
 public class EncryptedJsonSerializer extends JsonSerializer<Object> {
     private final JsonSerializer<Object> baseSerializer;
     private final EncryptionService encryptionService;
@@ -38,18 +41,21 @@ public class EncryptedJsonSerializer extends JsonSerializer<Object> {
         this.baseSerializer = baseSerializer;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Encrypted field serializer
+     */
+    @Override
     public void serialize(final Object object, final JsonGenerator generator, final SerializerProvider provider) throws IOException, EncryptionException {
         StringWriter writer = new StringWriter();
         JsonGenerator nestedGenerator = generator.getCodec().getFactory().createGenerator(writer);
-        if (null == this.baseSerializer) {
+        if (null == baseSerializer)
             provider.defaultSerializeValue(object, nestedGenerator);
-        } else {
-            this.baseSerializer.serialize(object, nestedGenerator, provider);
-        }
-
+        else
+            baseSerializer.serialize(object, nestedGenerator, provider);
         nestedGenerator.close();
-        String value = writer.getBuffer().toString();
-        EncryptedJson encrypted = this.encryptionService.encrypt(value, "UTF-8");
+        EncryptedJson encrypted = encryptionService.encrypt(writer.getBuffer().toString(), "UTF-8");
         generator.writeObject(encrypted);
     }
 }

@@ -25,48 +25,37 @@ package com.codingrodent.jackson.crypto;
 
 import com.codingrodent.jackson.crypto.pojos.SecureGetterPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.*;
+import org.junit.Test;
 
 import javax.validation.Validation;
 
 import static org.junit.Assert.assertEquals;
 
 public class CryptoGetterTest {
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
 
     @Test
     public void encryptDefault() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper, new PasswordCryptoContext("password1"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
 
         SecureGetterPoJo pojo = new SecureGetterPoJo();
         pojo.setCritical("Something very secure ...");
 
         String json = objectMapper.writeValueAsString(pojo);
-        System.out.println(json);
         SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
-        System.out.println(pojo2.getCritical());
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 
     @Test
     public void encryptCustomValidator() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule());
-        EncryptionService.getInstance(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("password1"));
+        ObjectMapper objectMapper = new ObjectMapper();
+        new EncryptionService(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("Password1"));
 
         SecureGetterPoJo pojo = new SecureGetterPoJo();
         pojo.setCritical("Something very secure ...");
 
         String json = objectMapper.writeValueAsString(pojo);
-        System.out.println(json);
         SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
-        System.out.println(pojo2.getCritical());
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 

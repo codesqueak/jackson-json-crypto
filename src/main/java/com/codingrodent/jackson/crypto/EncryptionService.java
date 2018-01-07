@@ -31,98 +31,39 @@ import org.slf4j.*;
 import javax.validation.*;
 import java.util.Set;
 
+/**
+ * Encryption / decryption functionality to handle the processing of {@link Encrypt} marked fields to/from JSON
+ */
 public class EncryptionService {
     private static final Logger logger = LoggerFactory.getLogger(EncryptionService.class);
-    private static volatile EncryptionService encryptionService;
     private final ObjectMapper mapper;
     private final Validator validator;
     private final ICryptoContext cryptoContext;
 
     /**
-     * Private  constructor for singleton
+     * Construct crypto service
      *
-     * @param mapper        Object mapper to use
+     * @param objectMapper  Object objectMapper to use
      * @param validator     Validator to use
      * @param cryptoContext Crypto to use
      * @throws EncryptionException Thrown on any error
      */
-    private EncryptionService(final ObjectMapper mapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
-        this.mapper = mapper;
+    public EncryptionService(final ObjectMapper objectMapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
+        this.mapper = objectMapper;
         this.validator = validator;
         this.cryptoContext = cryptoContext;
+        objectMapper.registerModule(new CryptoModule(this));
     }
 
     /**
-     * Lazy initializer for the encryption service
-     *
-     * @param mapper        Object mapper to use
-     * @param validator     Validator to use
-     * @param cryptoContext Crypto to use
-     * @return An instance of the encryption service
-     * @throws EncryptionException Thrown on any error
-     */
-    public static EncryptionService getInstance(final ObjectMapper mapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
-        if (null == encryptionService) {
-            synchronized (EncryptionService.class) {
-                if (null == encryptionService) {
-                    encryptionService = new EncryptionService(mapper, validator, cryptoContext);
-                }
-            }
-        }
-        return encryptionService;
-    }
-
-    /**
-     * Lazy initializer for the encryption service using a default validator
+     * Construct crypto service using a default validator
      *
      * @param mapper        Object mapper to use
      * @param cryptoContext Crypto to use
-     * @return An instance of the encryption service
      * @throws EncryptionException Thrown on any error
      */
-    public static EncryptionService getInstance(final ObjectMapper mapper, final ICryptoContext cryptoContext) throws EncryptionException {
-        return getInstance(mapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
-    }
-
-    /**
-     * Get the encryption service.  Needs to have been initialized by this point
-     *
-     * @return Encryption service
-     * @throws EncryptionException Thrown if service not yet initialized
-     */
-    public static EncryptionService getInstance() throws EncryptionException {
-        if (null == encryptionService) {
-            throw new EncryptionException("Encryption Service has not been initialized");
-        } else {
-            return encryptionService;
-        }
-    }
-
-    private void validate(EncryptedJson encrypted) throws EncryptionException {
-        if (encrypted == null) {
-            throw new EncryptionException("null encrypted value encountered");
-        } else {
-            Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
-            if (!violations.isEmpty()) {
-                String message = String.format("invalid encrypted value%n%s", validationErrorMessage(encrypted, violations));
-                logger.warn(message);
-                throw new EncryptionException(message);
-            }
-        }
-    }
-
-    private String validationErrorMessage(final EncryptedJson encrypted, final Set<ConstraintViolation<EncryptedJson>> violations) {
-        StringBuilder sb = new StringBuilder();
-        try {
-            sb.append("value:").append(mapper.writeValueAsString(encrypted)).append("\n");
-        } catch (JsonProcessingException e) {
-            sb.append(e.getMessage()).append("\n");
-        }
-        sb.append("violations:\n");
-        for (final ConstraintViolation violation : violations) {
-            sb.append("- ").append(violation.getPropertyPath().toString()).append(" ").append(violation.getMessage()).append("\n");
-        }
-        return sb.toString();
+    public EncryptionService(final ObjectMapper mapper, final ICryptoContext cryptoContext) throws EncryptionException {
+        this(mapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
     }
 
     /**
@@ -178,11 +119,37 @@ public class EncryptionService {
      */
     public Object decrypt(final JsonParser parser, final JsonDeserializer<?> deserializer, final DeserializationContext context, final JavaType type) {
         try {
-            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory()
-                                                                                                                                                            .createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
+            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory().createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
         } catch (Exception e) {
             throw new EncryptionException("Unable to decrypt document", e);
         }
+    }
+
+    private void validate(EncryptedJson encrypted) throws EncryptionException {
+        if (encrypted == null) {
+            throw new EncryptionException("null encrypted value encountered");
+        } else {
+            Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
+            if (!violations.isEmpty()) {
+                String message = String.format("invalid encrypted value%n%s", validationErrorMessage(encrypted, violations));
+                logger.warn(message);
+                throw new EncryptionException(message);
+            }
+        }
+    }
+
+    private String validationErrorMessage(final EncryptedJson encrypted, final Set<ConstraintViolation<EncryptedJson>> violations) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            sb.append("value:").append(mapper.writeValueAsString(encrypted)).append("\n");
+        } catch (JsonProcessingException e) {
+            sb.append(e.getMessage()).append("\n");
+        }
+        sb.append("violations:\n");
+        for (final ConstraintViolation violation : violations) {
+            sb.append("- ").append(violation.getPropertyPath().toString()).append(" ").append(violation.getMessage()).append("\n");
+        }
+        return sb.toString();
     }
 
 }

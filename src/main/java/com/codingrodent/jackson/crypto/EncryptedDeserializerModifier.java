@@ -29,10 +29,23 @@ import com.fasterxml.jackson.databind.deser.*;
 
 import java.util.Iterator;
 
+/**
+ * Class that defines objects that to be used to participate in constructing {@link JsonDeserializer} instances (via {@link DeserializerFactory}).
+ */
 public class EncryptedDeserializerModifier extends BeanDeserializerModifier {
-    public EncryptedDeserializerModifier() {
+
+    private final EncryptionService encryptionService;
+
+    public EncryptedDeserializerModifier(final EncryptionService encryptionService) {
+        this.encryptionService = encryptionService;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Add deserialization functionality for {@link Encrypt} marked fields
+     */
+    @Override
     public BeanDeserializerBuilder updateBuilder(final DeserializationConfig config, final BeanDescription beanDescription, final BeanDeserializerBuilder builder) {
         Iterator it = builder.getProperties();
 
@@ -40,10 +53,9 @@ public class EncryptedDeserializerModifier extends BeanDeserializerModifier {
             SettableBeanProperty p = (SettableBeanProperty) it.next();
             if (null != p.getAnnotation(Encrypt.class)) {
                 JsonDeserializer<Object> current = p.getValueDeserializer();
-                builder.addOrReplaceProperty(p.withValueDeserializer(new EncryptedJsonDeserializer(EncryptionService.getInstance(), current)), true);
+                builder.addOrReplaceProperty(p.withValueDeserializer(new EncryptedJsonDeserializer(encryptionService, current)), true);
             }
         }
-
         return builder;
     }
 }

@@ -27,28 +27,26 @@ package com.codingrodent.jackson.crypto;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 
+/**
+ * All fields marked as {@link Encrypt} are converted to this data structure in the JSON tree
+ */
 @JsonInclude(Include.NON_NULL)
 public class EncryptedJson {
-    @JsonProperty("id")
-    private byte[] id;
-    @JsonProperty("salt")
+
+    @JsonProperty(value = "salt", required = true)
+    @NotNull
     private byte[] salt;
-    @JsonProperty("iv")
+    @JsonProperty(value = "iv", required = true)
+    @NotNull
     private byte[] iv;
-    @JsonProperty("value")
+    @JsonProperty(value = "value", required = true)
+    @NotNull
     private byte[] value;
 
     public EncryptedJson() {
-    }
-
-    public byte[] getId() {
-        return null == this.id ? null : Arrays.copyOf(this.id, this.id.length);
-    }
-
-    public void setId(final byte[] id) {
-        this.id = Arrays.copyOf(id, id.length);
     }
 
     public byte[] getSalt() {
