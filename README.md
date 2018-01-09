@@ -3,6 +3,8 @@
 
 A Jackson module to support JSON encryption/descryption 
 
+Based on an idea from [metmedia](https://github.com/meltmedia/jackson-crypto)
+
 ## Build
 
 Windows
@@ -20,9 +22,8 @@ Linux
 Add the crypto module to your project.
 
 ```java
-ObjectMapper objectMapper = new ObjectMapper().registerModule(new CryptoModule()); // add crypto module
-EncryptionService.getInstance(objectMapper); // Initialise the crypto service
-
+ObjectMapper objectMapper = new ObjectMapper(); // Get your object mapper instance
+new EncryptionService(objectMapper, new PasswordCryptoContext("Password1")); // Initialise the crypto service and add the module
 ```
 
 ### Encrypt a field

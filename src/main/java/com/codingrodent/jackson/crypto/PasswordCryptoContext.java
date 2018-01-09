@@ -25,38 +25,24 @@ THE SOFTWARE.
 package com.codingrodent.jackson.crypto;
 
 /**
- * Interface defining required core crypto functionality
+ * Default crypto context for handling password based encryption processes
  */
-interface ICryptoContext {
+public class PasswordCryptoContext extends BaseCryptoContext {
+    public static final String CIPHER_NAME = "AES/CBC/PKCS5Padding";
+    public static final String KEY_NAME = "PBKDF2WithHmacSHA512";
+    public static final int MIN_PASSWORD_LENGTH = 8;
 
-    /**
-     * Decrypt an encrypted JSON object. Contains salt and iv as fields
-     *
-     * @param value JSON data
-     * @return Decrypted byte array
-     */
-    byte[] decrypt(EncryptedJson value);
+    public PasswordCryptoContext(final String readPassword, final String writePassword) throws EncryptionException {
+        super(readPassword, writePassword, CIPHER_NAME, KEY_NAME);
+        if ((null == readPassword) || (null == writePassword))
+            throw new IllegalArgumentException("Password cannot be null");
 
-    /**
-     * Encrypted a string as a byte array and encode using base 64
-     *
-     * @param source Byte array to be encrypted
-     * @return Encrypted data
-     */
-    byte[] encrypt(byte[] source);
+        if ((readPassword.length() < MIN_PASSWORD_LENGTH) || (writePassword.length() < MIN_PASSWORD_LENGTH))
+            throw new IllegalArgumentException("Minimum password length " + MIN_PASSWORD_LENGTH + " characters");
+    }
 
-    /**
-     * Get the initialization vector
-     *
-     * @return Vector as byte array
-     */
-    byte[] getIv();
-
-    /**
-     * Get the salt
-     *
-     * @return Salt as byte array
-     */
-    byte[] getSalt();
-
+    public PasswordCryptoContext(final String password) throws EncryptionException {
+        this(password, password);
+    }
 }
+

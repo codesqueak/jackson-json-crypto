@@ -24,13 +24,10 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
+/**
+ * General exception used when any errant event occurs during encrypt/decrypt operations
+ */
 public class EncryptionException extends RuntimeException {
-    public EncryptionException() {
-    }
-
-    public EncryptionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 
     public EncryptionException(String message, Throwable cause) {
         super(message, cause);

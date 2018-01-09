@@ -24,44 +24,72 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.Cipher;
+import javax.crypto.*;
 import javax.crypto.spec.*;
-import java.util.*;
+import java.security.*;
+import java.util.Arrays;
 
 import static javax.crypto.Cipher.*;
 
+/**
+ * Core crypto functionality. To be extended for specific purposes, e.g. password encryption
+ */
 public abstract class BaseCryptoContext implements ICryptoContext {
-    private byte[] iv;
-    private Optional<byte[]> salt;
-    private SecretKeySpec secretKeySpec;
 
-    public String decrypt(final String source) throws EncryptionException {
+    private final byte[] iv;
+    private final byte[] salt;
+    private final SecretKeySpec writeSecretKeySpec;
+    private final String readPassword, cipherName, keyAlgorithm;
+
+    /**
+     * Initialize crypto environment - Can use different passwords for read and write - e.g. When changing passwords
+     *
+     * @param readPassword  Password for read operations
+     * @param writePassword Password for write operations
+     * @param cipherName    Name of cipher to be used for encryption, e.g. AES/CBC/PKCS5Padding
+     * @param keyAlgorithm  Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
+     */
+    public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyAlgorithm) {
+        this.readPassword = readPassword;
+        this.cipherName = cipherName;
+        this.keyAlgorithm = keyAlgorithm;
+        this.salt = generateSalt(20);
+        this.writeSecretKeySpec = createSecretKeySpec(salt, writePassword);
+        //
         try {
-            byte[] cipherBytes = Base64.getDecoder().decode(source);
-            byte[] decryptedTextBytes = getDecryptCipher().doFinal(cipherBytes);
-            return new String(decryptedTextBytes, "UTF-8");
+            Cipher cipher = Cipher.getInstance(cipherName);
+            cipher.init(ENCRYPT_MODE, writeSecretKeySpec);
+            AlgorithmParameters params = cipher.getParameters();
+            iv = params.getParameterSpec(IvParameterSpec.class).getIV();
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    public byte[] decrypt(final byte[] source) throws EncryptionException {
+    /**
+     * Decrypt an encrypted JSON object. Contains salt and iv as fields
+     *
+     * @param value JSON data
+     * @return Decrypted byte array
+     * @throws EncryptionException Something failed
+     */
+    @Override
+    public byte[] decrypt(final EncryptedJson value) throws EncryptionException {
         try {
-            return getDecryptCipher().doFinal(source);
+            return getDecryptCipher(value.getIv(), value.getSalt()).doFinal(value.getValue());
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    public String encrypt(final String source) throws EncryptionException {
-        try {
-            byte[] encryptedTextBytes = getEncryptCipher().doFinal(source.getBytes("UTF-8"));
-            return Base64.getEncoder().encodeToString(encryptedTextBytes);
-        } catch (Exception e) {
-            throw new EncryptionException(e);
-        }
-    }
-
+    /**
+     * Encrypted a string as a byte array and encode using base 64
+     *
+     * @param source Byte array to be encrypted
+     * @return Encrypted data
+     * @throws EncryptionException Something failed
+     */
+    @Override
     public byte[] encrypt(final byte[] source) throws EncryptionException {
         try {
             return getEncryptCipher().doFinal(source);
@@ -70,45 +98,93 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         }
     }
 
-    private Cipher getDecryptCipher() throws EncryptionException {
-        return getCipher(DECRYPT_MODE);
+    /**
+     * Get the initialization vector
+     *
+     * @return Vector as byte array
+     */
+    public byte[] getIv() {
+        return Arrays.copyOf(iv, iv.length);
     }
 
-    private Cipher getEncryptCipher() throws EncryptionException {
-        return getCipher(ENCRYPT_MODE);
+    /**
+     * Get the salt
+     *
+     * @return Salt as byte array
+     */
+    public byte[] getSalt() {
+        return Arrays.copyOf(salt, salt.length);
     }
 
-    private Cipher getCipher(final int mode) throws EncryptionException {
+    // Internal functionality
+
+    /**
+     * Generate a cipher for decryption based on the supplied iv and salt
+     *
+     * @param iv   Initialization vector
+     * @param salt Salt
+     * @return Decryption cipher ready to use
+     * @throws EncryptionException Something failed
+     */
+    private Cipher getDecryptCipher(final byte[] iv, final byte[] salt) throws EncryptionException {
         try {
-            Cipher cipher = Cipher.getInstance(getCipherName());
-            cipher.init(mode, getSecretKeySpec(), new IvParameterSpec(getIv()));
+            Cipher cipher = Cipher.getInstance(cipherName);
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            SecretKeySpec secretKeySpec = createSecretKeySpec(salt, readPassword);
+            cipher.init(DECRYPT_MODE, secretKeySpec, ivParameterSpec);
             return cipher;
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
     }
 
-    public SecretKeySpec getSecretKeySpec() {
-        return secretKeySpec;
+    /**
+     * Generate a cipher for encryption based on the supplied crypto parameters
+     *
+     * @return Encryption cipher ready to use
+     * @throws EncryptionException Something failed
+     */
+    private Cipher getEncryptCipher() throws EncryptionException {
+        try {
+            Cipher cipher = Cipher.getInstance(cipherName);
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            cipher.init(ENCRYPT_MODE, writeSecretKeySpec, ivParameterSpec);
+            return cipher;
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
     }
 
-    public void setSecretKeySpec(final SecretKeySpec secretKeySpec) {
-        this.secretKeySpec = secretKeySpec;
+    /**
+     * Generate a random salt value
+     *
+     * @param size Number of bytes in salt value
+     * @return Salt
+     */
+    private byte[] generateSalt(final int size) {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[size];
+        random.nextBytes(bytes);
+        return bytes;
     }
 
-    public byte[] getIv() {
-        return Arrays.copyOf(iv, iv.length);
+    /**
+     * Generate a secret key spec from supplied password and salt
+     *
+     * @param salt     Salt
+     * @param password Password
+     * @return Secret key spec
+     * @throws EncryptionException Something failed
+     */
+    private SecretKeySpec createSecretKeySpec(final byte[] salt, final String password) throws EncryptionException {
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(keyAlgorithm);
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65556, 256);
+            SecretKey secretKey = factory.generateSecret(spec);
+            return new SecretKeySpec(secretKey.getEncoded(), "AES");
+        } catch (Exception e) {
+            throw new EncryptionException(e);
+        }
     }
 
-    public void setIv(final byte[] iv) {
-        this.iv = Arrays.copyOf(iv, iv.length);
-    }
-
-    public Optional<byte[]> getSalt() {
-        return salt;
-    }
-
-    public void setSalt(final Optional<byte[]> salt) {
-        this.salt = salt;
-    }
 }
