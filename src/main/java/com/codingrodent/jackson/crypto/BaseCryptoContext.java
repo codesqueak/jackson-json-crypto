@@ -161,7 +161,6 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      * @param size Number of bytes in salt value
      * @return Salt
      */
-
     private byte[] generateSalt(final int size) {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[size];
