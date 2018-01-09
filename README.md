@@ -1,5 +1,5 @@
 
-# Jackson Crypto
+# Jackson JSON Crypto
 
 A Jackson module to support JSON encryption/decryption 
 
