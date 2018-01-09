@@ -60,7 +60,8 @@ enable the Unlimited Strength Jurisdiction Policy.
 
 Problems with encyption strength will usually show as an error in the following form.
 ```
-com.codingrodent.jackson.crypto.EncryptionException: java.security.InvalidKeyException: Illegal key size or default parameters
+com.codingrodent.jackson.crypto.EncryptionException: java.security.InvalidKeyException: 
+   Illegal key size or default parameters
 ```
 
 ## Using Jenkins
