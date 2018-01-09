@@ -3,7 +3,7 @@
 
 A Jackson module to support JSON encryption/descryption 
 
-Based on an idea from [metmedia](https://github.com/meltmedia/jackson-crypto)
+Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 
 ## Build
 
@@ -68,10 +68,17 @@ com.codingrodent.jackson.crypto.EncryptionException: java.security.InvalidKeyExc
 The project includes a Jenkins file to control a pipeline build.
 
 ### Include Using Maven
-
-TBD
+```
+<dependency>
+  <groupId>com.codingrodent</groupId>
+  <artifactId>jackson-json-crypto</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 ### Include Using Gradle
 
-TBD
+```
+compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '1.0.0'
+```
 
