@@ -8,13 +8,13 @@ Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 ## Build
 
 Windows
-
+```
 gradlew clean build test
-
+```
 Linux
-
+```
 ./gradlew clean build test
-
+```
 ## How to use
 
 ### Register the module
@@ -23,7 +23,8 @@ Add the crypto module to your project.
 
 ```java
 ObjectMapper objectMapper = new ObjectMapper(); // Get your object mapper instance
-new EncryptionService(objectMapper, new PasswordCryptoContext("Password1")); // Initialise the crypto service and add the module
+// Initialise the crypto service and add the module - You probably want to change the password!
+new EncryptionService(objectMapper, new PasswordCryptoContext("Password1")); 
 ```
 
 ### Encrypt a field
@@ -49,6 +50,17 @@ This ...
     @JsonProperty
     @Encrypt
     private String critical;
+```
+
+## Output JSON Format
+```json
+{  
+   "critical":{  
+      "salt":"IRqsz99no75sx9SCGrzOSEdoMVw=",
+      "iv":"bfKvxBhq7X5su9VtvDdOGQ==",
+      "value":"pXWsFPzCnmPieitbGfkvofeQE3fj0Kb4mSP7e28+Jc0="
+   }
+}
 ```
 
 ## Java Cryptography Extension (JCE) Unlimited Strength
