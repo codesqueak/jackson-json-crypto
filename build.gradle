@@ -58,7 +58,7 @@ task createPom {
         {
             project {
                 artifactId 'jackson-json-crypto'
-                groupId 'com.codingrodent.jackson.crypto'
+                groupId 'com.codingrodent'
                 name 'com.codingrodent.jackson.crypto'
                 description 'A Crypto Module for Jackson'
                 url 'https://github.com/codesqueak/jackson-json-crypto'
