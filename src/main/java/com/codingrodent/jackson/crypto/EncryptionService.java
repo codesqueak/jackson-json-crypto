@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,10 +49,17 @@ public class EncryptionService {
      * @throws EncryptionException Thrown on any error
      */
     public EncryptionService(final ObjectMapper objectMapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
+        if (null == objectMapper)
+            throw new EncryptionException("Object mapper cannot be null");
+        if (null == validator)
+            throw new EncryptionException("Validator cannot be null");
+        if (null == cryptoContext)
+            throw new EncryptionException("Crypto Context cannot be null");
+        //
         this.mapper = objectMapper;
         this.validator = validator;
         this.cryptoContext = cryptoContext;
-        objectMapper.registerModule(new CryptoModule(this));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(this));
     }
 
     /**
@@ -119,7 +126,8 @@ public class EncryptionService {
      */
     public Object decrypt(final JsonParser parser, final JsonDeserializer<?> deserializer, final DeserializationContext context, final JavaType type) {
         try {
-            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory().createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
+            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory()
+                                                                                                                                                            .createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
         } catch (Exception e) {
             throw new EncryptionException("Unable to decrypt document", e);
         }

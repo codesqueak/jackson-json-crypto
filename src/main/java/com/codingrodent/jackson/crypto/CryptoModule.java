@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,25 +27,44 @@ package com.codingrodent.jackson.crypto;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 
+import java.util.ResourceBundle;
+
 /**
  * Crypto Module for Jackson JSON library
  */
 public class CryptoModule extends Module {
-    private final static int MAJOR = 1;
-    private final static int MINOR = 0;
-    private final static int PATCH = 0;
-    private final static String GROUP_ID = "com.codingrodent.jackson.crypto";
-    private final static String ARTIFACT_ID = "jackson-json-crypto";
-    private final EncryptedSerializerModifier serializerModifierModifier;
-    private final EncryptedDeserializerModifier deserializerModifierModifier;
+    public final static String GROUP_ID = "com.codingrodent.jackson.crypto";
+    public final static String ARTIFACT_ID = "jackson-json-crypto";
+    //
+    private final static String BUNDLE = CryptoModule.class.getPackage().getName() + ".config";
+    //
+    private final int major;
+    private final int minor;
+    private final int patch;
+    //
+    private EncryptedSerializerModifier serializerModifierModifier;
+    private EncryptedDeserializerModifier deserializerModifierModifier;
 
     /**
      * Initialize module
-     * @param encryptionService Service to supply crypto functionality
      */
-    public CryptoModule(final EncryptionService encryptionService) {
+    public CryptoModule() {
+        ResourceBundle rb = ResourceBundle.getBundle(BUNDLE);
+        major = Integer.parseInt(rb.getString("projectVersionMajor"));
+        minor = Integer.parseInt(rb.getString("projectVersionMinor"));
+        patch = Integer.parseInt(rb.getString("projectVersionBuild"));
+    }
+
+    /**
+     * Set the encryption service to use
+     *
+     * @param encryptionService Service to supply crypto functionality
+     * @return Updated module
+     */
+    public CryptoModule addEncryptionService(final EncryptionService encryptionService) {
         serializerModifierModifier = new EncryptedSerializerModifier(encryptionService);
         deserializerModifierModifier = new EncryptedDeserializerModifier(encryptionService);
+        return this;
     }
 
     /**
@@ -65,7 +84,7 @@ public class CryptoModule extends Module {
      */
     @Override
     public Version version() {
-        return new Version(MAJOR, MINOR, PATCH, null, GROUP_ID, ARTIFACT_ID);
+        return new Version(major, minor, patch, null, GROUP_ID, ARTIFACT_ID);
     }
 
     /**
@@ -75,6 +94,8 @@ public class CryptoModule extends Module {
      */
     @Override
     public void setupModule(final SetupContext context) {
+        if ((null == serializerModifierModifier) || (null == deserializerModifierModifier))
+            throw new EncryptionException("Crypto module not initialised with an encryption service");
         context.addBeanSerializerModifier(serializerModifierModifier);
         context.addBeanDeserializerModifier(deserializerModifierModifier);
     }

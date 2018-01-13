@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,11 +34,8 @@ public class PasswordCryptoContext extends BaseCryptoContext {
 
     public PasswordCryptoContext(final String readPassword, final String writePassword) throws EncryptionException {
         super(readPassword, writePassword, CIPHER_NAME, KEY_NAME);
-        if ((null == readPassword) || (null == writePassword))
-            throw new IllegalArgumentException("Password cannot be null");
-
         if ((readPassword.length() < MIN_PASSWORD_LENGTH) || (writePassword.length() < MIN_PASSWORD_LENGTH))
-            throw new IllegalArgumentException("Minimum password length " + MIN_PASSWORD_LENGTH + " characters");
+            throw new EncryptionException("Minimum password length " + MIN_PASSWORD_LENGTH + " characters");
     }
 
     public PasswordCryptoContext(final String password) throws EncryptionException {
