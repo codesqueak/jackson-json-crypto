@@ -62,7 +62,10 @@ public class EncryptedJson {
     }
 
     public void setIv(final byte[] iv) {
-        this.iv = Arrays.copyOf(iv, iv.length);
+        if (null != iv)
+            this.iv = Arrays.copyOf(iv, iv.length);
+        else
+            this.iv = null;
     }
 
     public byte[] getValue() {
@@ -70,6 +73,9 @@ public class EncryptedJson {
     }
 
     public void setValue(final byte[] value) {
-        this.value = Arrays.copyOf(value, value.length);
+        if (null != value)
+            this.value = Arrays.copyOf(value, value.length);
+        else
+            this.value = null;
     }
 }

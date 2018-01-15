@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import org.slf4j.*;
 
@@ -133,30 +133,30 @@ public class EncryptionService {
         }
     }
 
-    private void validate(EncryptedJson encrypted) throws EncryptionException {
-        if (encrypted == null) {
-            throw new EncryptionException("null encrypted value encountered");
-        } else {
-            Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
-            if (!violations.isEmpty()) {
-                String message = String.format("invalid encrypted value%n%s", validationErrorMessage(encrypted, violations));
-                logger.warn(message);
-                throw new EncryptionException(message);
-            }
+    /**
+     * Run the recovered encrypted json through the supplied validator and log any errors
+     *
+     * @param encrypted Deserialized encrypted json
+     * @throws EncryptionException Throws in any violation generated from the validator
+     */
+    private void validate(final EncryptedJson encrypted) throws EncryptionException {
+        final Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
+        if (!violations.isEmpty()) {
+            String message = "Encrypted JSON is invalid" + getErrors(violations);
+            logger.error(message);
+            throw new EncryptionException(message);
         }
     }
 
-    private String validationErrorMessage(final EncryptedJson encrypted, final Set<ConstraintViolation<EncryptedJson>> violations) {
+    /**
+     * Build an erro message list of all validation errors found
+     *
+     * @param violations Input from validator
+     * @return Erro message body
+     */
+    private String getErrors(final Set<ConstraintViolation<EncryptedJson>> violations) {
         StringBuilder sb = new StringBuilder();
-        try {
-            sb.append("value:").append(mapper.writeValueAsString(encrypted)).append("\n");
-        } catch (JsonProcessingException e) {
-            sb.append(e.getMessage()).append("\n");
-        }
-        sb.append("violations:\n");
-        for (final ConstraintViolation violation : violations) {
-            sb.append("- ").append(violation.getPropertyPath().toString()).append(" ").append(violation.getMessage()).append("\n");
-        }
+        violations.forEach(violation -> sb.append(" - ").append(violation.getPropertyPath()).append(" ").append(violation.getMessage()));
         return sb.toString();
     }
 
