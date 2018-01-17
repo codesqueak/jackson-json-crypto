@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,13 +32,23 @@ public class PasswordCryptoContext extends BaseCryptoContext {
     public static final String KEY_NAME = "PBKDF2WithHmacSHA512";
     public static final int MIN_PASSWORD_LENGTH = 8;
 
-    public PasswordCryptoContext(final String readPassword, final String writePassword) throws EncryptionException {
-        super(readPassword, writePassword, CIPHER_NAME, KEY_NAME);
-        if ((null == readPassword) || (null == writePassword))
-            throw new IllegalArgumentException("Password cannot be null");
-
+    /**
+     * Flexible constructor allowing customization of all parameters in the context
+     *
+     * @param readPassword  Password for decrypting fields
+     * @param writePassword Password for encrypting fields
+     * @param cipherName    Cipher to be employed, e.g. AES/CBC/PKCS5Padding
+     * @param keyName       Key generator to be employed, e.g. PBKDF2WithHmacSHA512
+     * @throws EncryptionException Thrown if unable to make context
+     */
+    public PasswordCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyName) throws EncryptionException {
+        super(readPassword, writePassword, cipherName, keyName);
         if ((readPassword.length() < MIN_PASSWORD_LENGTH) || (writePassword.length() < MIN_PASSWORD_LENGTH))
-            throw new IllegalArgumentException("Minimum password length " + MIN_PASSWORD_LENGTH + " characters");
+            throw new EncryptionException("Minimum password length is " + MIN_PASSWORD_LENGTH + " characters");
+    }
+
+    public PasswordCryptoContext(final String readPassword, final String writePassword) throws EncryptionException {
+        this(readPassword, writePassword, CIPHER_NAME, KEY_NAME);
     }
 
     public PasswordCryptoContext(final String password) throws EncryptionException {

@@ -17,15 +17,46 @@ Linux
 ```
 ## How to use
 
-### Register the module
+These examples are demonstrated in the ```CryptoDemo``` unit test class
 
-Add the crypto module to your project.
+### Option 1 - Very Quick and Easy
+
+Add the crypto module to your project. Common use case with a cipher of AES/CBC/PKCS5Padding and a key factory algorithm of PBKDF2WithHmacSHA512
+Just supply a password.
 
 ```java
-ObjectMapper objectMapper = new ObjectMapper(); // Get your object mapper instance
-// Initialise the crypto service and add the module - You probably want to change the password!
-new EncryptionService(objectMapper, new PasswordCryptoContext("Password1")); 
+ObjectMapper objectMapper = EncryptionService.getInstance(new PasswordCryptoContext("Password1"));
 ```
+
+
+### Option 2 - Quick and Easy
+
+Similar to Option 1, but you already have a ObjectMapper 
+
+```java
+ObjectMapper objectMapper = ...
+EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
+```
+
+
+### Option 3 - Configure Everything
+
+Where you just need full control. 
+
+```java
+// get an object mapper
+ObjectMapper objectMapper = new ObjectMapper();
+// set up a custom crypto context - Defines teh interface to the crypto algorithms used
+ICryptoContext cryptoContext = new PasswordCryptoContext("Password");
+// The encryption service holds functionality to map clear to / from encrypted JSON
+EncryptionService encryptionService = new EncryptionService(objectMapper, cryptoContext);
+// Create a Jackson module and tell it about the encryption service
+CryptoModule cryptoModule = new CryptoModule().addEncryptionService(encryptionService);
+ // Tell Jackson about the new module
+objectMapper.registerModule(cryptoModule);
+```
+
 
 ### Encrypt a field
 

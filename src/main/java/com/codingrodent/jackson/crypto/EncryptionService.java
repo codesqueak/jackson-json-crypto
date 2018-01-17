@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import org.slf4j.*;
 
@@ -41,6 +41,19 @@ public class EncryptionService {
     private final ICryptoContext cryptoContext;
 
     /**
+     * Convenience method to make a preconfigured ObjectMapper
+     *
+     * @param cryptoContext Crypto to use
+     * @return Configured ObjectMapper
+     */
+    public static ObjectMapper getInstance(final ICryptoContext cryptoContext) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
+        return objectMapper;
+    }
+
+    /**
      * Construct crypto service
      *
      * @param objectMapper  Object objectMapper to use
@@ -49,21 +62,27 @@ public class EncryptionService {
      * @throws EncryptionException Thrown on any error
      */
     public EncryptionService(final ObjectMapper objectMapper, final Validator validator, final ICryptoContext cryptoContext) throws EncryptionException {
+        if (null == objectMapper)
+            throw new EncryptionException("Object mapper cannot be null");
+        if (null == validator)
+            throw new EncryptionException("Validator cannot be null");
+        if (null == cryptoContext)
+            throw new EncryptionException("Crypto Context cannot be null");
+        //
         this.mapper = objectMapper;
         this.validator = validator;
         this.cryptoContext = cryptoContext;
-        objectMapper.registerModule(new CryptoModule(this));
     }
 
     /**
      * Construct crypto service using a default validator
      *
-     * @param mapper        Object mapper to use
+     * @param objectMapper  Object mapper to use
      * @param cryptoContext Crypto to use
      * @throws EncryptionException Thrown on any error
      */
-    public EncryptionService(final ObjectMapper mapper, final ICryptoContext cryptoContext) throws EncryptionException {
-        this(mapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
+    public EncryptionService(final ObjectMapper objectMapper, final ICryptoContext cryptoContext) throws EncryptionException {
+        this(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
     }
 
     /**
@@ -119,36 +138,37 @@ public class EncryptionService {
      */
     public Object decrypt(final JsonParser parser, final JsonDeserializer<?> deserializer, final DeserializationContext context, final JavaType type) {
         try {
-            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory().createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
+            return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory()
+                                                                                                                                                            .createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
         } catch (Exception e) {
             throw new EncryptionException("Unable to decrypt document", e);
         }
     }
 
-    private void validate(EncryptedJson encrypted) throws EncryptionException {
-        if (encrypted == null) {
-            throw new EncryptionException("null encrypted value encountered");
-        } else {
-            Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
-            if (!violations.isEmpty()) {
-                String message = String.format("invalid encrypted value%n%s", validationErrorMessage(encrypted, violations));
-                logger.warn(message);
-                throw new EncryptionException(message);
-            }
+    /**
+     * Run the recovered encrypted json through the supplied validator and log any errors
+     *
+     * @param encrypted Deserialized encrypted json
+     * @throws EncryptionException Throws in any violation generated from the validator
+     */
+    private void validate(final EncryptedJson encrypted) throws EncryptionException {
+        final Set<ConstraintViolation<EncryptedJson>> violations = validator.validate(encrypted);
+        if (!violations.isEmpty()) {
+            String message = "Encrypted JSON is invalid" + getErrors(violations);
+            logger.error(message);
+            throw new EncryptionException(message);
         }
     }
 
-    private String validationErrorMessage(final EncryptedJson encrypted, final Set<ConstraintViolation<EncryptedJson>> violations) {
+    /**
+     * Build an error message list of all validation errors found
+     *
+     * @param violations Input from validator
+     * @return Error message body
+     */
+    private String getErrors(final Set<ConstraintViolation<EncryptedJson>> violations) {
         StringBuilder sb = new StringBuilder();
-        try {
-            sb.append("value:").append(mapper.writeValueAsString(encrypted)).append("\n");
-        } catch (JsonProcessingException e) {
-            sb.append(e.getMessage()).append("\n");
-        }
-        sb.append("violations:\n");
-        for (final ConstraintViolation violation : violations) {
-            sb.append("- ").append(violation.getPropertyPath().toString()).append(" ").append(violation.getMessage()).append("\n");
-        }
+        violations.forEach(violation -> sb.append(" - ").append(violation.getPropertyPath()).append(" ").append(violation.getMessage()));
         return sb.toString();
     }
 

@@ -27,19 +27,25 @@ import com.codingrodent.jackson.crypto.pojos.SecureGetterPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
-import javax.validation.Validation;
-
 import static org.junit.Assert.assertEquals;
 
-public class CryptoGetterTest {
+public class CryptoDemoTest {
 
     @Test
-    public void encryptDefault() throws Exception {
+    public void encryptDetailedSetupDemo() throws Exception {
+        // get an object mapper
         ObjectMapper objectMapper = new ObjectMapper();
-        new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-
+        // set up a custom crypto context - Defines teh interface to the crypto algorithms used
+        ICryptoContext cryptoContext = new PasswordCryptoContext("Password");
+        // The encryption service holds functionality to map clear to / from encrypted JSON
+        EncryptionService encryptionService = new EncryptionService(objectMapper, cryptoContext);
+        // Create a Jackson module and tell it about the encryption service
+        CryptoModule cryptoModule = new CryptoModule().addEncryptionService(encryptionService);
+        // Tell Jackson about the new module
+        objectMapper.registerModule(cryptoModule);
+        //
         SecureGetterPoJo pojo = new SecureGetterPoJo();
-        pojo.setCritical("Something very secure ...");
+        pojo.setCritical("The long way to set up JSON crypto ...");
 
         String json = objectMapper.writeValueAsString(pojo);
         SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
@@ -47,16 +53,28 @@ public class CryptoGetterTest {
     }
 
     @Test
-    public void encryptCustomValidator() throws Exception {
+    public void encryptQuickSetupDemo() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        new EncryptionService(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), new PasswordCryptoContext("Password1"));
+        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
 
         SecureGetterPoJo pojo = new SecureGetterPoJo();
-        pojo.setCritical("Something very secure ...");
+        pojo.setCritical("The short way to set up JSON crypto ...");
 
         String json = objectMapper.writeValueAsString(pojo);
         SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 
+    @Test
+    public void encryptVeryQuickSetupDemo() throws Exception {
+        ObjectMapper objectMapper = EncryptionService.getInstance(new PasswordCryptoContext("Password1"));
+
+        SecureGetterPoJo pojo = new SecureGetterPoJo();
+        pojo.setCritical("The very short way to set up JSON crypto ...");
+
+        String json = objectMapper.writeValueAsString(pojo);
+        SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
+        assertEquals(pojo.getCritical(), pojo2.getCritical());
+    }
 }

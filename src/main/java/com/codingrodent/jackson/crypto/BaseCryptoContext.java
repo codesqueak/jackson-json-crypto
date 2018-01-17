@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2017
+Copyright (c) 2018
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -50,6 +50,12 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      * @param keyAlgorithm  Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
      */
     public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyAlgorithm) {
+        if ((null == readPassword) || (null == writePassword))
+            throw new EncryptionException("Password cannot be null");
+        if (null == cipherName)
+            throw new EncryptionException("Cipher Name cannot be null");
+        if (null == keyAlgorithm)
+            throw new EncryptionException("Key Algorithm cannot be null");
         this.readPassword = readPassword;
         this.cipherName = cipherName;
         this.keyAlgorithm = keyAlgorithm;
