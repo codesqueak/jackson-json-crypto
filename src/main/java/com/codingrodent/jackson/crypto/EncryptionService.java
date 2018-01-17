@@ -41,6 +41,19 @@ public class EncryptionService {
     private final ICryptoContext cryptoContext;
 
     /**
+     * Convenience method to make a preconfigured ObjectMapper
+     *
+     * @param cryptoContext Crypto to use
+     * @return Configured ObjectMapper
+     */
+    public static ObjectMapper getInstance(final ICryptoContext cryptoContext) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
+        return objectMapper;
+    }
+
+    /**
      * Construct crypto service
      *
      * @param objectMapper  Object objectMapper to use
@@ -59,18 +72,17 @@ public class EncryptionService {
         this.mapper = objectMapper;
         this.validator = validator;
         this.cryptoContext = cryptoContext;
-        objectMapper.registerModule(new CryptoModule().addEncryptionService(this));
     }
 
     /**
      * Construct crypto service using a default validator
      *
-     * @param mapper        Object mapper to use
+     * @param objectMapper  Object mapper to use
      * @param cryptoContext Crypto to use
      * @throws EncryptionException Thrown on any error
      */
-    public EncryptionService(final ObjectMapper mapper, final ICryptoContext cryptoContext) throws EncryptionException {
-        this(mapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
+    public EncryptionService(final ObjectMapper objectMapper, final ICryptoContext cryptoContext) throws EncryptionException {
+        this(objectMapper, Validation.buildDefaultValidatorFactory().getValidator(), cryptoContext);
     }
 
     /**
@@ -149,10 +161,10 @@ public class EncryptionService {
     }
 
     /**
-     * Build an erro message list of all validation errors found
+     * Build an error message list of all validation errors found
      *
      * @param violations Input from validator
-     * @return Erro message body
+     * @return Error message body
      */
     private String getErrors(final Set<ConstraintViolation<EncryptedJson>> violations) {
         StringBuilder sb = new StringBuilder();

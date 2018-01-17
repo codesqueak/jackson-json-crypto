@@ -1,5 +1,6 @@
 package com.codingrodent.jackson.crypto;
 
+import com.codingrodent.jackson.crypto.pojos.SecurePropertyPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.*;
 
@@ -59,6 +60,18 @@ public class EncryptionServiceTest {
         //
         byte[] decrypted = service.decrypt(encryptedJson);
         assertEquals(clear, new String(decrypted, "UTF-8"));
+    }
+
+    @Test
+    public void quickEncryptString() throws Exception {
+        ObjectMapper objectMapper = EncryptionService.getInstance(new PasswordCryptoContext("Password1"));
+        //
+        SecurePropertyPoJo pojo = new SecurePropertyPoJo();
+        pojo.setCritical("A clear string to encrypt");
+
+        String json = objectMapper.writeValueAsString(pojo);
+        SecurePropertyPoJo pojo2 = objectMapper.readValue(json, SecurePropertyPoJo.class);
+        assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 
 }

@@ -37,19 +37,8 @@ public class CryptoReloadTest {
     @Test
     public void encryptReload() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-
-        SecurePropertyPoJo pojo = new SecurePropertyPoJo();
-        pojo.setCritical("Something very secure ...");
-
-        SecurePropertyPoJo pojo2 = objectMapper.readValue(TEST_JSON, SecurePropertyPoJo.class);
-        assertEquals(pojo.getCritical(), pojo2.getCritical());
-    }
-
-    @Test
-    public void encryptReloadChangePasswords() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1", "Password2"));
+        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
 
         SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
@@ -61,7 +50,8 @@ public class CryptoReloadTest {
     @Test(expected = JsonMappingException.class)
     public void encryptReloadChangePasswordsThrowException() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        new EncryptionService(objectMapper, new PasswordCryptoContext("Password1", "Password2"));
+        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1", "Password2"));
+        objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
 
         SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
@@ -76,9 +66,12 @@ public class CryptoReloadTest {
     @Test
     public void encryptReloadChangePasswordsSecondService() throws Exception {
         ObjectMapper objectMapper1 = new ObjectMapper();
+        EncryptionService encryptionService1 = new EncryptionService(objectMapper1, new PasswordCryptoContext("Password1", "Password2"));
+        objectMapper1.registerModule(new CryptoModule().addEncryptionService(encryptionService1));
+
         ObjectMapper objectMapper2 = new ObjectMapper();
-        new EncryptionService(objectMapper1, new PasswordCryptoContext("Password1", "Password2"));
-        new EncryptionService(objectMapper2, new PasswordCryptoContext("Password2"));
+        EncryptionService encryptionService2 = new EncryptionService(objectMapper2, new PasswordCryptoContext("Password2"));
+        objectMapper2.registerModule(new CryptoModule().addEncryptionService(encryptionService2));
 
         SecurePropertyPoJo pojo = new SecurePropertyPoJo();
         pojo.setCritical("Something very secure ...");
