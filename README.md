@@ -1,7 +1,9 @@
 
-# Jackson JSON Crypto
+# Jackson JSON Crypto Module
 
-A Jackson module to support JSON encryption/decryption 
+A Jackson module to support JSON encryption and decryption operations.  Encryption is via AES. Key generation is password based.
+
+Keyword: Jackson, JSON, AES, PKCS5, Encryption, Salt, Initialization Vector, IV, Java
 
 Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 
@@ -22,6 +24,7 @@ These examples are demonstrated in the ```CryptoDemo``` unit test class
 ### Option 1 - Very Quick and Easy
 
 Add the crypto module to your project. Common use case with a cipher of AES/CBC/PKCS5Padding and a key factory algorithm of PBKDF2WithHmacSHA512
+
 Just supply a password.
 
 ```java
@@ -35,7 +38,8 @@ Similar to Option 1, but you already have a ObjectMapper
 
 ```java
 ObjectMapper objectMapper = ...
-EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+EncryptionService encryptionService = 
+   new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
 objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
 ```
 
