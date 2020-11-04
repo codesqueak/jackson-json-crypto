@@ -24,10 +24,13 @@
 package com.codingrodent.jackson.crypto;
 
 import com.codingrodent.jackson.crypto.pojos.SecurePropertyPoJo;
-import com.fasterxml.jackson.databind.*;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class CryptoReloadTest {
 
@@ -47,7 +50,7 @@ public class CryptoReloadTest {
         assertEquals(pojo.getCritical(), pojo2.getCritical());
     }
 
-    @Test(expected = JsonMappingException.class)
+    @Test
     public void encryptReloadChangePasswordsThrowException() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1", "Password2"));
@@ -60,7 +63,7 @@ public class CryptoReloadTest {
         assertEquals(pojo.getCritical(), pojo2.getCritical());
 
         String json = objectMapper.writeValueAsString(pojo2);
-        objectMapper.readValue(json, SecurePropertyPoJo.class);
+        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(json, SecurePropertyPoJo.class));
     }
 
     @Test

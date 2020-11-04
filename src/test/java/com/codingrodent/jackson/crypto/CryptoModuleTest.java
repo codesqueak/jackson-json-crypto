@@ -1,21 +1,22 @@
 package com.codingrodent.jackson.crypto;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import org.easymock.EasyMock;
-import org.junit.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CryptoModuleTest {
 
     private CryptoModule cryptoModule;
 
-    @Before
+    @BeforeEach
     public void setup() {
         cryptoModule = new CryptoModule();
     }
@@ -36,21 +37,21 @@ public class CryptoModuleTest {
     public void version() {
         cryptoModule = new CryptoModule();
         Version version = cryptoModule.version();
-        assertEquals("1.1.0", version.toString());
+        assertEquals("2.0.0", version.toString());
         assertEquals(CryptoModule.ARTIFACT_ID, version.getArtifactId());
         assertEquals(CryptoModule.GROUP_ID, version.getGroupId());
     }
 
-    @Test(expected = EncryptionException.class)
+    @Test
     public void setupModuleFail() {
-        Module.SetupContext context = EasyMock.createMock(Module.SetupContext.class);
+        SimpleModule.SetupContext context = EasyMock.createMock(SimpleModule.SetupContext.class);
         replay();
-        cryptoModule.setupModule(context);
+        assertThrows(EncryptionException.class, () -> cryptoModule.setupModule(context));
     }
 
     @Test
     public void setupModule() {
-        Module.SetupContext context = EasyMock.createMock(Module.SetupContext.class);
+        SimpleModule.SetupContext context = EasyMock.createMock(SimpleModule.SetupContext.class);
         context.addBeanDeserializerModifier(isA(BeanDeserializerModifier.class));
         expectLastCall().times(1);
         context.addBeanSerializerModifier(isA(BeanSerializerModifier.class));

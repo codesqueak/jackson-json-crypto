@@ -29,9 +29,10 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import java.lang.annotation.*;
 
 /**
- * Marker annotation to indicate a field(s) to be encrypted
+ * Marker annotation to indicate a field to be encrypted
  */
 @JacksonAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
-public @interface Encrypt {}
+public @interface Encrypt {
+}

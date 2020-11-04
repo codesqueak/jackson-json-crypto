@@ -26,7 +26,8 @@ package com.codingrodent.jackson.crypto;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.*;
 import java.util.Set;
@@ -43,12 +44,12 @@ public class EncryptionService {
     /**
      * Convenience method to make a preconfigured ObjectMapper
      *
-     * @param cryptoContext Crypto to use
+     * @param password Password to use
      * @return Configured ObjectMapper
      */
-    public static ObjectMapper getInstance(final ICryptoContext cryptoContext) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        EncryptionService encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+    public static ObjectMapper getInstance(final String password) {
+        var objectMapper = new ObjectMapper();
+        var encryptionService = new EncryptionService(objectMapper, new PasswordCryptoContext(password));
         objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
         return objectMapper;
     }
@@ -93,7 +94,7 @@ public class EncryptionService {
      * @throws EncryptionException Thrown on any error
      */
     public EncryptedJson encrypt(final byte[] data) throws EncryptionException {
-        EncryptedJson result = new EncryptedJson();
+        var result = new EncryptedJson();
         result.setIv(cryptoContext.getIv());
         result.setSalt(cryptoContext.getSalt());
         result.setValue(cryptoContext.encrypt(data));
@@ -122,7 +123,7 @@ public class EncryptionService {
      * @param value Pojo derived from JSON
      * @return Decrypted byte array
      */
-    public byte[] decrypt(EncryptedJson value) {
+    public byte[] decrypt(final EncryptedJson value) {
         validate(value);
         return cryptoContext.decrypt(value);
     }
@@ -139,7 +140,7 @@ public class EncryptionService {
     public Object decrypt(final JsonParser parser, final JsonDeserializer<?> deserializer, final DeserializationContext context, final JavaType type) {
         try {
             return null == deserializer ? mapper.readValue(decrypt(mapper.readValue(parser, EncryptedJson.class)), type) : deserializer.deserialize(mapper.getFactory()
-                                                                                                                                                            .createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
+                    .createParser(decrypt(mapper.readValue(parser, EncryptedJson.class))), context);
         } catch (Exception e) {
             throw new EncryptionException("Unable to decrypt document", e);
         }
@@ -167,7 +168,7 @@ public class EncryptionService {
      * @return Error message body
      */
     private String getErrors(final Set<ConstraintViolation<EncryptedJson>> violations) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         violations.forEach(violation -> sb.append(" - ").append(violation.getPropertyPath()).append(" ").append(violation.getMessage()));
         return sb.toString();
     }

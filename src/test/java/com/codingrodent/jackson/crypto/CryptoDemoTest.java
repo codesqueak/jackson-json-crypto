@@ -25,9 +25,10 @@ package com.codingrodent.jackson.crypto;
 
 import com.codingrodent.jackson.crypto.pojos.SecureGetterPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class CryptoDemoTest {
 
@@ -68,7 +69,7 @@ public class CryptoDemoTest {
 
     @Test
     public void encryptVeryQuickSetupDemo() throws Exception {
-        ObjectMapper objectMapper = EncryptionService.getInstance(new PasswordCryptoContext("Password1"));
+        ObjectMapper objectMapper = EncryptionService.getInstance("Password1");
 
         SecureGetterPoJo pojo = new SecureGetterPoJo();
         pojo.setCritical("The very short way to set up JSON crypto ...");

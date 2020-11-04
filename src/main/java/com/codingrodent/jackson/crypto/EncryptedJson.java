@@ -24,8 +24,9 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
@@ -62,10 +63,7 @@ public class EncryptedJson {
     }
 
     public void setIv(final byte[] iv) {
-        if (null != iv)
-            this.iv = Arrays.copyOf(iv, iv.length);
-        else
-            this.iv = null;
+        this.iv = null == iv ? null : Arrays.copyOf(iv, iv.length);
     }
 
     public byte[] getValue() {
@@ -73,9 +71,6 @@ public class EncryptedJson {
     }
 
     public void setValue(final byte[] value) {
-        if (null != value)
-            this.value = Arrays.copyOf(value, value.length);
-        else
-            this.value = null;
+        this.value = null == value ? null : Arrays.copyOf(value, value.length);
     }
 }
