@@ -28,7 +28,7 @@ Add the crypto module to your project. Common use case with a cipher of AES/CBC/
 Just supply a password.
 
 ```java
-ObjectMapper objectMapper = EncryptionService.getInstance(new PasswordCryptoContext("Password1"));
+ObjectMapper objectMapper = EncryptionService.getInstance("Password1");
 ```
 
 
@@ -39,7 +39,7 @@ Similar to Option 1, but you already have a ObjectMapper
 ```java
 ObjectMapper objectMapper = ...
 EncryptionService encryptionService = 
-   new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
+   new EncryptionService(objectMapper, new PasswordCryptoContext("Password1");
 objectMapper.registerModule(new CryptoModule().addEncryptionService(encryptionService));
 ```
 
@@ -51,7 +51,7 @@ Where you just need full control.
 ```java
 // get an object mapper
 ObjectMapper objectMapper = new ObjectMapper();
-// set up a custom crypto context - Defines teh interface to the crypto algorithms used
+// set up a custom crypto context - Defines the interface to the crypto algorithms used
 ICryptoContext cryptoContext = new PasswordCryptoContext("Password");
 // The encryption service holds functionality to map clear to / from encrypted JSON
 EncryptionService encryptionService = new EncryptionService(objectMapper, cryptoContext);
@@ -120,13 +120,13 @@ The project includes a Jenkins file to control a pipeline build.
 <dependency>
   <groupId>com.codingrodent</groupId>
   <artifactId>jackson-json-crypto</artifactId>
-  <version>1.1.0</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 
 ## Include Using Gradle
 
 ```
-compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '1.1.0'
+compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '2.0.1'
 ```
 

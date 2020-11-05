@@ -35,14 +35,17 @@ public class PasswordCryptoContext extends BaseCryptoContext {
     /**
      * Flexible constructor allowing customization of all parameters in the context
      *
-     * @param readPassword  Password for decrypting fields
-     * @param writePassword Password for encrypting fields
-     * @param cipherName    Cipher to be employed, e.g. AES/CBC/PKCS5Padding
-     * @param keyName       Key generator to be employed, e.g. PBKDF2WithHmacSHA512
+     * @param readPassword     Password for decrypting fields
+     * @param writePassword    Password for encrypting fields
+     * @param cipherName       Cipher to be employed, e.g. AES/CBC/PKCS5Padding
+     * @param keyGeneratorName Key generator to be employed, e.g. PBKDF2WithHmacSHA512
      * @throws EncryptionException Thrown if unable to make context
      */
-    public PasswordCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyName) throws EncryptionException {
-        super(readPassword, writePassword, cipherName, keyName);
+    public PasswordCryptoContext(final String readPassword,
+                                 final String writePassword,
+                                 final String cipherName,
+                                 final String keyGeneratorName) throws EncryptionException {
+        super(readPassword, writePassword, cipherName, keyGeneratorName);
         if ((readPassword.length() < MIN_PASSWORD_LENGTH) || (writePassword.length() < MIN_PASSWORD_LENGTH))
             throw new EncryptionException("Minimum password length is " + MIN_PASSWORD_LENGTH + " characters");
     }

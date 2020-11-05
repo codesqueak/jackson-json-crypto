@@ -24,12 +24,14 @@ THE SOFTWARE.
 
 package com.codingrodent.jackson.crypto;
 
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.*;
-import java.security.*;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
-import static javax.crypto.Cipher.*;
+import static javax.crypto.Cipher.DECRYPT_MODE;
+import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 /**
  * Core crypto functionality. To be extended for specific purposes, e.g. password encryption
@@ -59,14 +61,14 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         this.readPassword = readPassword;
         this.cipherName = cipherName;
         this.keyAlgorithm = keyAlgorithm;
-        this.salt = generateSalt(20);
+        this.salt = generateSalt();
         this.writeSecretKeySpec = createSecretKeySpec(salt, writePassword);
         //
         try {
-            Cipher cipher = Cipher.getInstance(cipherName);
+            var cipher = Cipher.getInstance(cipherName);
             cipher.init(ENCRYPT_MODE, writeSecretKeySpec);
-            AlgorithmParameters params = cipher.getParameters();
-            iv = params.getParameterSpec(IvParameterSpec.class).getIV();
+            var algorithmParameters = cipher.getParameters();
+            iv = algorithmParameters.getParameterSpec(IvParameterSpec.class).getIV();
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
@@ -134,9 +136,9 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      */
     private Cipher getDecryptCipher(final byte[] iv, final byte[] salt) throws EncryptionException {
         try {
-            Cipher cipher = Cipher.getInstance(cipherName);
+            var cipher = Cipher.getInstance(cipherName);
             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-            SecretKeySpec secretKeySpec = createSecretKeySpec(salt, readPassword);
+            var secretKeySpec = createSecretKeySpec(salt, readPassword);
             cipher.init(DECRYPT_MODE, secretKeySpec, ivParameterSpec);
             return cipher;
         } catch (Exception e) {
@@ -152,8 +154,8 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      */
     private Cipher getEncryptCipher() throws EncryptionException {
         try {
-            Cipher cipher = Cipher.getInstance(cipherName);
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            var cipher = Cipher.getInstance(cipherName);
+            var ivParameterSpec = new IvParameterSpec(iv);
             cipher.init(ENCRYPT_MODE, writeSecretKeySpec, ivParameterSpec);
             return cipher;
         } catch (Exception e) {
@@ -164,12 +166,11 @@ public abstract class BaseCryptoContext implements ICryptoContext {
     /**
      * Generate a random salt value
      *
-     * @param size Number of bytes in salt value
      * @return Salt
      */
-    private byte[] generateSalt(final int size) {
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[size];
+    private byte[] generateSalt() {
+        var random = new SecureRandom();
+        var bytes = new byte[16];
         random.nextBytes(bytes);
         return bytes;
     }
@@ -184,9 +185,9 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      */
     private SecretKeySpec createSecretKeySpec(final byte[] salt, final String password) throws EncryptionException {
         try {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance(keyAlgorithm);
-            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65556, 256);
-            SecretKey secretKey = factory.generateSecret(spec);
+            var factory = SecretKeyFactory.getInstance(keyAlgorithm);
+            var passwordBasedEncryptionKeySpec = new PBEKeySpec(password.toCharArray(), salt, 65556, 256);
+            var secretKey = factory.generateSecret(passwordBasedEncryptionKeySpec);
             return new SecretKeySpec(secretKey.getEncoded(), "AES");
         } catch (Exception e) {
             throw new EncryptionException(e);

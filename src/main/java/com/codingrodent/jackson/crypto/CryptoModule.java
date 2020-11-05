@@ -25,14 +25,15 @@ THE SOFTWARE.
 package com.codingrodent.jackson.crypto;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.util.ResourceBundle;
 
 /**
  * Crypto Module for Jackson JSON library
  */
-public class CryptoModule extends Module {
+public class CryptoModule extends SimpleModule {
     public final static String GROUP_ID = "com.codingrodent.jackson.crypto";
     public final static String ARTIFACT_ID = "jackson-json-crypto";
     //
@@ -49,7 +50,7 @@ public class CryptoModule extends Module {
      * Initialize module
      */
     public CryptoModule() {
-        ResourceBundle rb = ResourceBundle.getBundle(BUNDLE);
+        var rb = ResourceBundle.getBundle(BUNDLE);
         major = Integer.parseInt(rb.getString("projectVersionMajor"));
         minor = Integer.parseInt(rb.getString("projectVersionMinor"));
         patch = Integer.parseInt(rb.getString("projectVersionBuild"));

@@ -27,10 +27,8 @@ package com.codingrodent.jackson.crypto;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 
-import java.util.Iterator;
-
 /**
- * Class that defines objects that to be used to participate in constructing {@link JsonDeserializer} instances (via {@link DeserializerFactory}).
+ * Class that defines objects that are to be used to participate in constructing {@link JsonDeserializer} instances (via {@link DeserializerFactory}).
  */
 public class EncryptedDeserializerModifier extends BeanDeserializerModifier {
 
@@ -47,13 +45,12 @@ public class EncryptedDeserializerModifier extends BeanDeserializerModifier {
      */
     @Override
     public BeanDeserializerBuilder updateBuilder(final DeserializationConfig config, final BeanDescription beanDescription, final BeanDeserializerBuilder builder) {
-        Iterator it = builder.getProperties();
-
+        var it = builder.getProperties();
         while (it.hasNext()) {
-            SettableBeanProperty p = (SettableBeanProperty) it.next();
-            if (null != p.getAnnotation(Encrypt.class)) {
-                JsonDeserializer<Object> current = p.getValueDeserializer();
-                builder.addOrReplaceProperty(p.withValueDeserializer(new EncryptedJsonDeserializer(encryptionService, current)), true);
+            var property = it.next();
+            if (null != property.getAnnotation(Encrypt.class)) {
+                var current = property.getValueDeserializer();
+                builder.addOrReplaceProperty(property.withValueDeserializer(new EncryptedJsonDeserializer(encryptionService, current)), true);
             }
         }
         return builder;

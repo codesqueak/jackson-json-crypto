@@ -25,11 +25,12 @@ package com.codingrodent.jackson.crypto;
 
 import com.codingrodent.jackson.crypto.pojos.SecurePropertyPoJo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class CryptoPropertyTest {
 

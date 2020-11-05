@@ -27,7 +27,9 @@ package com.codingrodent.jackson.crypto;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Implementation of API used by {@link ObjectMapper}  for {@link JsonSerializer}s too) to serialize required objects
@@ -48,14 +50,16 @@ public class EncryptedJsonSerializer extends JsonSerializer<Object> {
      */
     @Override
     public void serialize(final Object object, final JsonGenerator generator, final SerializerProvider provider) throws IOException, EncryptionException {
-        StringWriter writer = new StringWriter();
-        JsonGenerator nestedGenerator = generator.getCodec().getFactory().createGenerator(writer);
+        var writer = new StringWriter();
+        // new generator to write the value whatever it is
+        var nestedGenerator = generator.getCodec().getFactory().createGenerator(writer);
         if (null == baseSerializer)
             provider.defaultSerializeValue(object, nestedGenerator);
         else
             baseSerializer.serialize(object, nestedGenerator, provider);
         nestedGenerator.close();
-        EncryptedJson encrypted = encryptionService.encrypt(writer.getBuffer().toString(), "UTF-8");
+        // now encrypt the output from the generator
+        var encrypted = encryptionService.encrypt(writer.getBuffer().toString(), StandardCharsets.UTF_8.name());
         generator.writeObject(encrypted);
     }
 }

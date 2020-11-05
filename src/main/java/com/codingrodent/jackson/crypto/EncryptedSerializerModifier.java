@@ -27,7 +27,8 @@ package com.codingrodent.jackson.crypto;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation that defines API for objects that can be registered (for {@link BeanSerializerFactory}
@@ -52,14 +53,14 @@ public class EncryptedSerializerModifier extends BeanSerializerModifier {
      */
     @Override
     public List<BeanPropertyWriter> changeProperties(final SerializationConfig config, final BeanDescription beanDescription, final List<BeanPropertyWriter> beanProperties) {
-        List<BeanPropertyWriter> newWriters = new ArrayList<>();
-
+        var newWriters = new ArrayList<BeanPropertyWriter>();
         for (final BeanPropertyWriter writer : beanProperties) {
             if (null == writer.getAnnotation(Encrypt.class)) {
                 newWriters.add(writer);
             } else {
                 try {
-                    JsonSerializer<Object> encryptSer = new EncryptedJsonSerializer(encryptionService, writer.getSerializer());
+                    // ToDo - only encrypt strings at the moment
+                    var encryptSer = new EncryptedJsonSerializer(encryptionService, writer.getSerializer());
                     newWriters.add(new EncryptedPropertyWriter(writer, encryptSer));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -70,9 +71,9 @@ public class EncryptedSerializerModifier extends BeanSerializerModifier {
     }
 
     static class EncryptedPropertyWriter extends BeanPropertyWriter {
-        EncryptedPropertyWriter(final BeanPropertyWriter base, final JsonSerializer<Object> deserializer) {
+        EncryptedPropertyWriter(final BeanPropertyWriter base, final JsonSerializer<Object> serializer) {
             super(base);
-            this._serializer = deserializer;
+            this._serializer = serializer;
         }
     }
 }

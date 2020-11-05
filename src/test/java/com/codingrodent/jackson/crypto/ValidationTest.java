@@ -24,8 +24,12 @@
 package com.codingrodent.jackson.crypto;
 
 import com.codingrodent.jackson.crypto.pojos.SecurePropertyPoJo;
-import com.fasterxml.jackson.databind.*;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class ValidationTest {
 
@@ -36,31 +40,31 @@ public class ValidationTest {
     private final static String TEST_JSON_NULL_VALUE = "{\"critical\":{\"salt\":\"IRqsz99no75sx9SCGrzOSEdoMVw=\",\"iv\":\"bfKvxBhq7X5su9VtvDdOGQ==\"," + "\"value\":null}}";
     private final static String TEST_JSON_MULTIPLE_NULLS = "{\"critical\":{\"salt\":null,\"iv\":null," + "\"value\":null}}";
 
-    @Test(expected = JsonMappingException.class)
-    public void nullSaltValidatorTest() throws Exception {
+    @Test
+    public void nullSaltValidatorTest() {
         ObjectMapper objectMapper = new ObjectMapper();
         new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-        objectMapper.readValue(TEST_JSON_NULL_SALT, SecurePropertyPoJo.class);
+        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(TEST_JSON_NULL_SALT, SecurePropertyPoJo.class));
     }
 
-    @Test(expected = JsonMappingException.class)
-    public void nullIVValidatorTest() throws Exception {
+    @Test
+    public void nullIVValidatorTest() {
         ObjectMapper objectMapper = new ObjectMapper();
         new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-        objectMapper.readValue(TEST_JSON_NULL_IV, SecurePropertyPoJo.class);
+        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(TEST_JSON_NULL_IV, SecurePropertyPoJo.class));
     }
 
-    @Test(expected = JsonMappingException.class)
-    public void nullValueValidatorTest() throws Exception {
+    @Test
+    public void nullValueValidatorTest() {
         ObjectMapper objectMapper = new ObjectMapper();
         new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-        objectMapper.readValue(TEST_JSON_NULL_VALUE, SecurePropertyPoJo.class);
+        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(TEST_JSON_NULL_VALUE, SecurePropertyPoJo.class));
     }
 
-    @Test(expected = JsonMappingException.class)
-    public void multipleErrorsValidatorTest() throws Exception {
+    @Test
+    public void multipleErrorsValidatorTest() {
         ObjectMapper objectMapper = new ObjectMapper();
         new EncryptionService(objectMapper, new PasswordCryptoContext("Password1"));
-        objectMapper.readValue(TEST_JSON_MULTIPLE_NULLS, SecurePropertyPoJo.class);
+        assertThrows(JsonMappingException.class, () -> objectMapper.readValue(TEST_JSON_MULTIPLE_NULLS, SecurePropertyPoJo.class));
     }
 }

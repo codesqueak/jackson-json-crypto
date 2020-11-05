@@ -61,7 +61,7 @@ public class EncryptedJsonDeserializer extends JsonDeserializer<Object> implemen
         if (deserializer instanceof ContextualDeserializer) {
             deserializer = ((ContextualDeserializer) deserializer).createContextual(context, property);
         }
-        return service.decrypt(parser, deserializer, context, property != null ? property.getType() : null);
+        return service.decrypt(parser, deserializer, context, null == property ? null : property.getType());
     }
 
     /**
