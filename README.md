@@ -124,13 +124,13 @@ The project includes a Jenkins file to control a pipeline build.
 <dependency>
   <groupId>com.codingrodent</groupId>
   <artifactId>jackson-json-crypto</artifactId>
-  <version>2.0.1</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
 ## Include Using Gradle
 
 ```
-compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '2.0.1'
+compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '2.1.0'
 ```
 
