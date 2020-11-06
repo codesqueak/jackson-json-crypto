@@ -1,4 +1,5 @@
 ![CodeQL](https://github.com/codesqueak/jackson-json-crypto/workflows/CodeQL/badge.svg) 
+![Java CI with Gradle](https://github.com/codesqueak/jackson-json-crypto/workflows/Java%20CI%20with%20Gradle/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/com.codingrodent/jackson-json-crypto.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.codingrodent%22%20AND%20a:%22jackson-json-crypto%22)
 
 
