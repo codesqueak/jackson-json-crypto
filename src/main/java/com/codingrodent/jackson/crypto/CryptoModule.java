@@ -34,6 +34,9 @@ import java.util.ResourceBundle;
  * Crypto Module for Jackson JSON library
  */
 public class CryptoModule extends SimpleModule {
+
+    private static final long serialVersionUID = 1L;
+
     public final static String GROUP_ID = "com.codingrodent.jackson.crypto";
     public final static String ARTIFACT_ID = "jackson-json-crypto";
     //
@@ -43,8 +46,8 @@ public class CryptoModule extends SimpleModule {
     private final int minor;
     private final int patch;
     //
-    private EncryptedSerializerModifier serializerModifierModifier;
-    private EncryptedDeserializerModifier deserializerModifierModifier;
+    private transient EncryptedSerializerModifier serializerModifierModifier;
+    private transient EncryptedDeserializerModifier deserializerModifierModifier;
 
     /**
      * Initialize module

@@ -141,10 +141,19 @@ spotbugsMain {
     }
 }
 
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+        }
+    }
+}
+
 spotbugs {
-    toolVersion = '4.1.1'
+    toolVersion = '4.1.4'
     ignoreFailures = false
     effort = 'max'
+
 }
 
 publishing {
