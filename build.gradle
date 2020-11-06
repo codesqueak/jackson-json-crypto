@@ -133,22 +133,6 @@ jacocoTestReport {
     }
 }
 
-spotbugsMain {
-    reports {
-        html {
-            enabled = true
-        }
-    }
-}
-
-spotbugsTest {
-    reports {
-        html {
-            enabled = true
-        }
-    }
-}
-
 spotbugs {
     toolVersion = '4.1.4'
     ignoreFailures = false
@@ -188,10 +172,6 @@ artifactory {
     }
 }
 
-check.dependsOn jacocoTestReport
-test.dependsOn javadoc
-jar.dependsOn createPom
-jar.dependsOn setVersion
 
 dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.3'
