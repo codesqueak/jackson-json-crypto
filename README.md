@@ -1,3 +1,5 @@
+![CodeQL](https://github.com/codesqueak/jackson-json-crypto/workflows/CodeQL/badge.svg)
+
 
 # Jackson JSON Crypto Module
 
