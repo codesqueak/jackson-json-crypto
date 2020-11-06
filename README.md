@@ -1,4 +1,5 @@
-![CodeQL](https://github.com/codesqueak/jackson-json-crypto/workflows/CodeQL/badge.svg)
+![CodeQL](https://github.com/codesqueak/jackson-json-crypto/workflows/CodeQL/badge.svg) 
+[![Maven Central](https://img.shields.io/maven-central/v/com.codingrodent/jackson-json-crypto.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.codingrodent%22%20AND%20a:%22jackson-json-crypto%22)
 
 
 # Jackson JSON Crypto Module
