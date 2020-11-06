@@ -14,29 +14,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CryptoModuleTest {
 
-    private CryptoModule cryptoModule;
-
-    @BeforeEach
-    public void setup() {
-        cryptoModule = new CryptoModule();
-    }
-
     @Test
     public void addEncryptionService() {
-        EncryptionService encryptionService = new EncryptionService(new ObjectMapper(), new PasswordCryptoContext("password"));
-        cryptoModule = new CryptoModule();
-        assertTrue(cryptoModule == cryptoModule.addEncryptionService(encryptionService));
+        var encryptionService = new EncryptionService(new ObjectMapper(), new PasswordCryptoContext("password"));
+        var cryptoModule = new CryptoModule();
+        assertSame(cryptoModule, cryptoModule.addEncryptionService(encryptionService));
     }
 
     @Test
     public void getModuleName() {
+        var cryptoModule = new CryptoModule();
         assertEquals(CryptoModule.ARTIFACT_ID, cryptoModule.getModuleName());
     }
 
     @Test
     public void version() {
-        cryptoModule = new CryptoModule();
-        Version version = cryptoModule.version();
+        var cryptoModule = new CryptoModule();
+        var version = cryptoModule.version();
         assertEquals("2.0.0", version.toString());
         assertEquals(CryptoModule.ARTIFACT_ID, version.getArtifactId());
         assertEquals(CryptoModule.GROUP_ID, version.getGroupId());
@@ -44,24 +38,22 @@ public class CryptoModuleTest {
 
     @Test
     public void setupModuleFail() {
+        var cryptoModule = new CryptoModule();
         SimpleModule.SetupContext context = EasyMock.createMock(SimpleModule.SetupContext.class);
-        replay();
         assertThrows(EncryptionException.class, () -> cryptoModule.setupModule(context));
     }
 
     @Test
     public void setupModule() {
+        var cryptoModule = new CryptoModule();
         SimpleModule.SetupContext context = EasyMock.createMock(SimpleModule.SetupContext.class);
         context.addBeanDeserializerModifier(isA(BeanDeserializerModifier.class));
         expectLastCall().times(1);
         context.addBeanSerializerModifier(isA(BeanSerializerModifier.class));
         expectLastCall().times(1);
-        replay();
         //
-        EncryptionService encryptionService = new EncryptionService(new ObjectMapper(), new PasswordCryptoContext("password"));
+        var encryptionService = new EncryptionService(new ObjectMapper(), new PasswordCryptoContext("password"));
         cryptoModule.addEncryptionService(encryptionService);
         cryptoModule.setupModule(context);
-        //
-        verify();
     }
 }
