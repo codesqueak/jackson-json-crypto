@@ -33,6 +33,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CryptoDemoTest {
 
     @Test
+    public void encryptDetailedSetupDemoWithDESAlgo() throws Exception {
+        // get an object mapper
+        ObjectMapper objectMapper = new ObjectMapper();
+        // set up a custom crypto context - Defines teh interface to the crypto algorithms used
+        ICryptoContext cryptoContext = new PasswordCryptoContext("Password", "Password",
+                "DES/CBC/PKCS5Padding", "PBKDF2WithHmacSHA256", 10000, 64, "DES");
+        // The encryption service holds functionality to map clear to / from encrypted JSON
+        EncryptionService encryptionService = new EncryptionService(objectMapper, cryptoContext);
+        // Create a Jackson module and tell it about the encryption service
+        CryptoModule cryptoModule = new CryptoModule().addEncryptionService(encryptionService);
+        // Tell Jackson about the new module
+        objectMapper.registerModule(cryptoModule);
+        //
+        SecureGetterPoJo pojo = new SecureGetterPoJo();
+        pojo.setCritical("The long way to set up JSON crypto ...");
+
+        String json = objectMapper.writeValueAsString(pojo);
+        SecureGetterPoJo pojo2 = objectMapper.readValue(json, SecureGetterPoJo.class);
+        assertEquals(pojo.getCritical(), pojo2.getCritical());
+    }
+
+    @Test
     public void encryptDetailedSetupDemo() throws Exception {
         // get an object mapper
         ObjectMapper objectMapper = new ObjectMapper();

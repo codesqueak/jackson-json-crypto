@@ -38,6 +38,14 @@ import static javax.crypto.Cipher.ENCRYPT_MODE;
  */
 public abstract class BaseCryptoContext implements ICryptoContext {
 
+    public static final int DEFAULT_ITERATION_COUNT = 65556;
+    public static final int DEFAULT_KEY_LENGTH = 256;
+    public static final String DEFAULT_ALGORITHM_TYPE = "AES";
+
+    private int iterationCount;
+    private int keyLength;
+    private String algorithmType;
+
     private final byte[] iv;
     private final byte[] salt;
     private final SecretKeySpec writeSecretKeySpec;
@@ -50,20 +58,33 @@ public abstract class BaseCryptoContext implements ICryptoContext {
      * @param writePassword Password for write operations
      * @param cipherName    Name of cipher to be used for encryption, e.g. AES/CBC/PKCS5Padding
      * @param keyAlgorithm  Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
+     * @param iterationCount the iteration count e.g. 5000
+     * @param keyLength the to-be-derived key length e.g. 64
+     * @param algorithmType Name of alogorithm type e.g. DES
      */
-    public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyAlgorithm) {
+    public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName,
+                             final String keyAlgorithm, int iterationCount, int keyLength, final String algorithmType) {
+
         if ((null == readPassword) || (null == writePassword))
             throw new EncryptionException("Password cannot be null");
         if (null == cipherName)
             throw new EncryptionException("Cipher Name cannot be null");
         if (null == keyAlgorithm)
             throw new EncryptionException("Key Algorithm cannot be null");
+        if (null == algorithmType)
+            throw new EncryptionException("Algorithm type cannot be null");
+        if (iterationCount < 5000)
+            throw new EncryptionException("Iteration Count cannot be less than 5000");
+
+        this.iterationCount = iterationCount;
+        this.keyLength = keyLength;
+        this.algorithmType = algorithmType;
         this.readPassword = readPassword;
         this.cipherName = cipherName;
         this.keyAlgorithm = keyAlgorithm;
         this.salt = generateSalt();
         this.writeSecretKeySpec = createSecretKeySpec(salt, writePassword);
-        //
+
         try {
             var cipher = Cipher.getInstance(cipherName);
             cipher.init(ENCRYPT_MODE, writeSecretKeySpec);
@@ -72,6 +93,18 @@ public abstract class BaseCryptoContext implements ICryptoContext {
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
+    }
+
+    /**
+     * Initialize crypto environment - Can use different passwords for read and write - e.g. When changing passwords
+     *
+     * @param readPassword  Password for read operations
+     * @param writePassword Password for write operations
+     * @param cipherName    Name of cipher to be used for encryption, e.g. AES/CBC/PKCS5Padding
+     * @param keyAlgorithm  Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
+     */
+    public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName, final String keyAlgorithm) {
+        this(readPassword, writePassword, cipherName, keyAlgorithm, DEFAULT_ITERATION_COUNT, DEFAULT_KEY_LENGTH, DEFAULT_ALGORITHM_TYPE);
     }
 
     /**
@@ -186,9 +219,9 @@ public abstract class BaseCryptoContext implements ICryptoContext {
     private SecretKeySpec createSecretKeySpec(final byte[] salt, final String password) throws EncryptionException {
         try {
             var factory = SecretKeyFactory.getInstance(keyAlgorithm);
-            var passwordBasedEncryptionKeySpec = new PBEKeySpec(password.toCharArray(), salt, 65556, 256);
+            var passwordBasedEncryptionKeySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
             var secretKey = factory.generateSecret(passwordBasedEncryptionKeySpec);
-            return new SecretKeySpec(secretKey.getEncoded(), "AES");
+            return new SecretKeySpec(secretKey.getEncoded(), algorithmType);
         } catch (Exception e) {
             throw new EncryptionException(e);
         }
