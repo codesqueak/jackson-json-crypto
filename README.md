@@ -2,22 +2,28 @@
 ![Java CI with Gradle](https://github.com/codesqueak/jackson-json-crypto/workflows/Java%20CI%20with%20Gradle/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/com.codingrodent/jackson-json-crypto.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.codingrodent%22%20AND%20a:%22jackson-json-crypto%22)
 
-
 # Jackson JSON Crypto Module
 
-A Jackson module to support JSON encryption and decryption operations.  Encryption is via AES. Key generation is password based.
+A Jackson module to support JSON encryption and decryption operations. Encryption is via AES. Key generation is password
+based.
 
 Keyword: Jackson, JSON, AES, PKCS5, Encryption, Salt, Initialization Vector, IV, Java
 
 Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 
+If you find this project useful, you may want to [__Buy me a coffee! :
+coffee:__](https://www.buymeacoffee.com/codesqueak) Thanks :thumbsup:
+
 ## Build
 
 Windows
+
 ```
 gradlew clean build test
 ```
+
 Linux
+
 ```
 ./gradlew clean build test
 ```
@@ -100,19 +106,6 @@ This ...
       "value":"pXWsFPzCnmPieitbGfkvofeQE3fj0Kb4mSP7e28+Jc0="
    }
 }
-```
-
-## Java Cryptography Extension (JCE) Unlimited Strength
-
-As shipped, Java has limitations on the strength of encryption allowable.  To allow full strength encryption to be used, you will need to
-enable the Unlimited Strength Jurisdiction Policy.
-
-[Policy Files](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html)
-
-Problems with encyption strength will usually show as an error in the following form.
-```
-com.codingrodent.jackson.crypto.EncryptionException: java.security.InvalidKeyException: 
-   Illegal key size or default parameters
 ```
 
 ## Using Jenkins
