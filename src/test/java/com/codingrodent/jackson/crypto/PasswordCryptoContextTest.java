@@ -40,6 +40,31 @@ public class PasswordCryptoContextTest {
     }
 
     @Test
+    public void testConstructorLowIterationCount() {
+        assertThrows(EncryptionException.class, () -> new PasswordCryptoContext("password1", "password1", PasswordCryptoContext.CIPHER_NAME, PasswordCryptoContext.KEY_NAME, 2000, 64, "DES"));
+    }
+
+    @Test
+    public void testConstructorNullAlgorithmType() {
+        assertThrows(EncryptionException.class, () -> new PasswordCryptoContext("password1", "password1", PasswordCryptoContext.CIPHER_NAME, PasswordCryptoContext.KEY_NAME, 8000, 64, null));
+    }
+
+    @Test
+    public void testConstructorWrongKeyLengthForDES() {
+        assertThrows(EncryptionException.class, () -> new PasswordCryptoContext("password1", "password1", PasswordCryptoContext.CIPHER_NAME, PasswordCryptoContext.KEY_NAME, 8000, 128, "DES"));
+    }
+
+    @Test
+    public void testConstructorWrongKeyLengthForAES() {
+        assertThrows(EncryptionException.class, () -> new PasswordCryptoContext("password1", "password1", PasswordCryptoContext.CIPHER_NAME, PasswordCryptoContext.KEY_NAME, 8000, 64, "AES"));
+    }
+
+    @Test
+    public void testConstructorUnknownAlgorithmType() {
+        assertThrows(EncryptionException.class, () -> new PasswordCryptoContext("password1", "password1", PasswordCryptoContext.CIPHER_NAME, PasswordCryptoContext.KEY_NAME, 8000, 64, "UnknownAlgorithm"));
+    }
+
+    @Test
     public void testConstructor1() {
         assertThrows(EncryptionException.class, () -> new PasswordCryptoContext(null));
     }
