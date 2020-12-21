@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2018
+Copyright (c) 2018,2019,2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,9 +42,9 @@ public abstract class BaseCryptoContext implements ICryptoContext {
     public static final int DEFAULT_KEY_LENGTH = 256;
     public static final String DEFAULT_ALGORITHM_TYPE = "AES";
 
-    private int iterationCount;
-    private int keyLength;
-    private String algorithmType;
+    private final int iterationCount;
+    private final int keyLength;
+    private final String algorithmType;
 
     private final byte[] iv;
     private final byte[] salt;
@@ -54,13 +54,13 @@ public abstract class BaseCryptoContext implements ICryptoContext {
     /**
      * Initialize crypto environment - Can use different passwords for read and write - e.g. When changing passwords
      *
-     * @param readPassword  Password for read operations
-     * @param writePassword Password for write operations
-     * @param cipherName    Name of cipher to be used for encryption, e.g. AES/CBC/PKCS5Padding
-     * @param keyAlgorithm  Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
+     * @param readPassword   Password for read operations
+     * @param writePassword  Password for write operations
+     * @param cipherName     Name of cipher to be used for encryption, e.g. AES/CBC/PKCS5Padding
+     * @param keyAlgorithm   Name of kay algorithm to use, e.g. PBKDF2WithHmacSHA512
      * @param iterationCount the iteration count e.g. 5000
-     * @param keyLength the to-be-derived key length e.g. 64
-     * @param algorithmType Name of alogorithm type e.g. DES
+     * @param keyLength      the to-be-derived key length e.g. 64
+     * @param algorithmType  Name of algorithm type e.g. DES
      */
     public BaseCryptoContext(final String readPassword, final String writePassword, final String cipherName,
                              final String keyAlgorithm, int iterationCount, int keyLength, final String algorithmType) {

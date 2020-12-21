@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2018
+Copyright (c) 2018,2019,2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,8 @@ package com.codingrodent.jackson.crypto;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.List;
  * to participate in constructing {@link BeanSerializer} instances.
  */
 public class EncryptedSerializerModifier extends BeanSerializerModifier {
+    private static final Logger logger = LoggerFactory.getLogger(EncryptedSerializerModifier.class);
+
     private final EncryptionService encryptionService;
 
     /**
@@ -63,7 +67,8 @@ public class EncryptedSerializerModifier extends BeanSerializerModifier {
                     var encryptSer = new EncryptedJsonSerializer(encryptionService, writer.getSerializer());
                     newWriters.add(new EncryptedPropertyWriter(writer, encryptSer));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Only string encryption supported at present");
+                    throw new EncryptionException("Type to encrypt is unsupported");
                 }
             }
         }

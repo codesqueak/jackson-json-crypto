@@ -11,8 +11,8 @@ Keyword: Jackson, JSON, AES, PKCS5, Encryption, Salt, Initialization Vector, IV,
 
 Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 
-If you find this project useful, you may want to [__Buy me a coffee! :
-coffee:__](https://www.buymeacoffee.com/codesqueak) Thanks :thumbsup:
+If you find this project useful, you may want to [__Buy me a Coffee!__ :
+coffee:](https://www.buymeacoffee.com/codesqueak) Thanks :thumbsup:
 
 ## Build
 
@@ -117,13 +117,13 @@ The project includes a Jenkins file to control a pipeline build.
 <dependency>
   <groupId>com.codingrodent</groupId>
   <artifactId>jackson-json-crypto</artifactId>
-  <version>2.1.1</version>
+  <version>2.2.0</version>
 </dependency>
 ```
 
 ## Include Using Gradle
 
 ```
-compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '2.1.1'
+compile group: 'com.codingrodent', name: 'jackson-json-crypto', version: '2.2.0'
 ```
 
