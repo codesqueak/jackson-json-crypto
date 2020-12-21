@@ -11,8 +11,7 @@ Keyword: Jackson, JSON, AES, PKCS5, Encryption, Salt, Initialization Vector, IV,
 
 Based on an idea from [meltmedia](https://github.com/meltmedia/jackson-crypto)
 
-If you find this project useful, you may want to [__Buy me a Coffee!__ :
-coffee:](https://www.buymeacoffee.com/codesqueak) Thanks :thumbsup:
+If you find this project useful, you may want to [__Buy me a Coffee!__ :coffee:](https://www.buymeacoffee.com/codesqueak) Thanks :thumbsup:
 
 ## Build
 
