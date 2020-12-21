@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright (c) 2018
+Copyright (c) 2018,2019,2020
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,13 +35,13 @@ public class PasswordCryptoContext extends BaseCryptoContext {
     /**
      * Flexible constructor allowing customization of all parameters in the context
      *
-     * @param readPassword  Password for decrypting fields
-     * @param writePassword Password for encrypting fields
-     * @param cipherName    Cipher to be employed, e.g. AES/CBC/PKCS5Padding
-     * @param keyName       Key generator to be employed, e.g. PBKDF2WithHmacSHA512
+     * @param readPassword   Password for decrypting fields
+     * @param writePassword  Password for encrypting fields
+     * @param cipherName     Cipher to be employed, e.g. AES/CBC/PKCS5Padding
+     * @param keyName        Key generator to be employed, e.g. PBKDF2WithHmacSHA512
      * @param iterationCount the iteration count e.g. 5000
-     * @param keyLength the to-be-derived key length e.g. 64
-     * @param algorithmType Name of alogorithm type e.g. DES
+     * @param keyLength      the to-be-derived key length e.g. 64
+     * @param algorithmType  Name of algorithm type e.g. DES
      * @throws EncryptionException Thrown if unable to make context
      */
     public PasswordCryptoContext(final String readPassword, final String writePassword, final String cipherName,

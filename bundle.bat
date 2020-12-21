@@ -1,5 +1,5 @@
 
-set VER="1.0.0"
+set VER="2.2.0"
 
 gpg -ab jackson-json-crypto-%VER%.jar
 gpg -ab jackson-json-crypto-%VER%.pom
