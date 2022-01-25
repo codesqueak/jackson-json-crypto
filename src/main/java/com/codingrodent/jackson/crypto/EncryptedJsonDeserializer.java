@@ -35,16 +35,16 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
  */
 public class EncryptedJsonDeserializer extends JsonDeserializer<Object> implements ContextualDeserializer {
     private final EncryptionService service;
-    private final JsonDeserializer<Object> baseDeserializer;
+    private final JsonDeserializer<?> baseDeserializer;
     private final BeanProperty property;
 
-    public EncryptedJsonDeserializer(final EncryptionService service, final JsonDeserializer<Object> baseDeserializer) {
+    public EncryptedJsonDeserializer(final EncryptionService service, final JsonDeserializer<?> baseDeserializer) {
         this.service = service;
         this.baseDeserializer = baseDeserializer;
         this.property = null;
     }
 
-    public EncryptedJsonDeserializer(final EncryptionService service, final JsonDeserializer<Object> wrapped, final BeanProperty property) {
+    public EncryptedJsonDeserializer(final EncryptionService service, final JsonDeserializer<?> wrapped, final BeanProperty property) {
         this.service = service;
         this.baseDeserializer = wrapped;
         this.property = property;
@@ -56,19 +56,20 @@ public class EncryptedJsonDeserializer extends JsonDeserializer<Object> implemen
      * Encrypted field deserializer
      */
     @Override
-    public Object deserialize(final JsonParser parser, final DeserializationContext context) throws JsonMappingException {
-        JsonDeserializer<?> deserializer = baseDeserializer;
-        if (deserializer instanceof ContextualDeserializer) {
-            deserializer = ((ContextualDeserializer) deserializer).createContextual(context, property);
-        }
-        return service.decrypt(parser, deserializer, context, null == property ? null : property.getType());
+    public Object deserialize(final JsonParser parser, final DeserializationContext context) {
+        return service.decrypt(parser, baseDeserializer, context, property != null ? property.getType() : null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public JsonDeserializer<?> createContextual(final DeserializationContext context, final BeanProperty property) {
-        return new EncryptedJsonDeserializer(service, baseDeserializer, property);
+    public JsonDeserializer<?> createContextual(final DeserializationContext context, final BeanProperty property) throws JsonMappingException {
+        JsonDeserializer<?> deserializer = baseDeserializer;
+        if (deserializer instanceof ContextualDeserializer) {
+            deserializer = ((ContextualDeserializer) deserializer).createContextual(context, property);
+        }
+
+        return new EncryptedJsonDeserializer(service, deserializer, property);
     }
 }
